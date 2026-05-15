@@ -1,0 +1,41 @@
+{
+  "source": "lgu",
+  "scholarships": [
+    {
+      "title": "Daet LGU Scholarship Program",
+      "provider": "lgu",
+      "description": "For residents of Daet pursuing college education in any recognized institution.",
+      "deadline": "2025-08-01",
+      "minimum_gwa": 2.25,
+      "required_course": null,
+      "municipality": "Daet",
+      "benefits": "PHP 5,000 per semester",
+      "application_link": "https://daet.gov.ph/scholarship",
+      "source_url": "https://lgu.camarines-norte.gov.ph/api/scholarships/daet"
+    },
+    {
+      "title": "Labo Municipal Scholarship",
+      "provider": "lgu",
+      "description": "For bonafide residents of Labo taking priority courses.",
+      "deadline": "2025-07-15",
+      "minimum_gwa": 2.50,
+      "required_course": null,
+      "municipality": "Labo",
+      "benefits": "PHP 4,000 per semester + school supplies allowance",
+      "application_link": "https://labo.gov.ph/scholarship",
+      "source_url": "https://lgu.camarines-norte.gov.ph/api/scholarships/labo"
+    },
+    {
+      "title": "Camarines Norte Provincial Scholarship",
+      "provider": "lgu",
+      "description": "Province-wide scholarship for all residents of Camarines Norte.",
+      "deadline": "2025-09-01",
+      "minimum_gwa": 2.00,
+      "required_course": null,
+      "municipality": null,
+      "benefits": "PHP 6,000 per semester",
+      "application_link": "https://camarines-norte.gov.ph/scholarship",
+      "source_url": "https://lgu.camarines-norte.gov.ph/api/scholarships/provincial"
+    }
+  ]
+}

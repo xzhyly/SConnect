@@ -1,0 +1,41 @@
+{
+  "source": "ched",
+  "scholarships": [
+    {
+      "title": "CHED Tulong Dunong Program",
+      "provider": "ched",
+      "description": "Financial assistance for deserving but financially disadvantaged students enrolled in priority courses.",
+      "deadline": "2025-08-30",
+      "minimum_gwa": 2.50,
+      "required_course": null,
+      "municipality": null,
+      "benefits": "PHP 8,000 per semester",
+      "application_link": "https://ched.gov.ph/tulong-dunong",
+      "source_url": "https://ched.gov.ph/api/scholarships/tulong-dunong"
+    },
+    {
+      "title": "CHED Merit Scholarship",
+      "provider": "ched",
+      "description": "For academically outstanding students in any CHED-recognized institution.",
+      "deadline": "2025-09-15",
+      "minimum_gwa": 1.50,
+      "required_course": null,
+      "municipality": null,
+      "benefits": "Full tuition + PHP 5,000 monthly stipend",
+      "application_link": "https://ched.gov.ph/merit",
+      "source_url": "https://ched.gov.ph/api/scholarships/merit"
+    },
+    {
+      "title": "CHED Special Study Grant Program",
+      "provider": "ched",
+      "description": "For students taking priority courses aligned with national development goals.",
+      "deadline": "2025-07-31",
+      "minimum_gwa": 2.00,
+      "required_course": "BSIT",
+      "municipality": null,
+      "benefits": "PHP 15,000 per semester",
+      "application_link": "https://ched.gov.ph/ssgp",
+      "source_url": "https://ched.gov.ph/api/scholarships/ssgp"
+    }
+  ]
+}
