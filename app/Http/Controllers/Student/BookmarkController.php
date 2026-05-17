@@ -17,7 +17,7 @@ class BookmarkController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(12);
 
-        return view('student.bookmarks', compact('bookmarks'));
+        return view('student.bookmarks.index', compact('bookmarks'));
     }
 
     public function store(Request $request, $id)
@@ -47,5 +47,27 @@ class BookmarkController extends Controller
         }
 
         return back()->with('success', 'Bookmark removed.');
+    }
+
+    public function toggle(Request $request, $id)
+    {
+        $scholarship = Scholarship::where('is_active', true)->findOrFail($id);
+
+        $bookmark = Bookmark::where('user_id', auth()->id())
+            ->where('scholarship_id', $scholarship->id)
+            ->first();
+
+        if ($bookmark) {
+            $bookmark->delete();
+            $bookmarked = false;
+        } else {
+            Bookmark::create([
+                'user_id'        => auth()->id(),
+                'scholarship_id' => $scholarship->id,
+            ]);
+            $bookmarked = true;
+        }
+
+        return response()->json(['success' => true, 'bookmarked' => $bookmarked]);
     }
 }

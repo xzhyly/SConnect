@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Student;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Scholarship;
@@ -8,65 +8,48 @@ use Illuminate\Http\Request;
 
 class ScholarshipController extends Controller
 {
+    /**
+     * GET /admin/scholarships — show scholarships with filters
+     */
     public function index(Request $request)
     {
-        $query = Scholarship::where('is_active', true);
+        $query = Scholarship::query();
 
-        // Filter by provider
         if ($request->filled('provider')) {
             $query->where('provider', $request->provider);
         }
 
-        // Filter by course
-        if ($request->filled('course')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('required_course', $request->course)
-                  ->orWhereNull('required_course');
-            });
+        if ($request->filled('status')) {
+            $query->where('is_active', $request->status === 'active');
         }
 
-        // Filter by municipality
-        if ($request->filled('municipality')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('municipality', $request->municipality)
-                  ->orWhereNull('municipality');
-            });
-        }
-
-        // Filter by GWA eligibility
-        if ($request->filled('gwa')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('minimum_gwa', '>=', $request->gwa)
-                  ->orWhereNull('minimum_gwa');
-            });
-        }
-
-        // Search by title
         if ($request->filled('search')) {
             $query->where('title', 'like', '%' . $request->search . '%');
         }
 
-        $scholarships = $query->orderBy('deadline', 'asc')->paginate(12);
+        $scholarships = $query->orderBy('created_at', 'desc')->paginate(15)->withQueryString();
 
-        // Get user's bookmarked IDs for UI state
-        $bookmarkedIds = auth()->user()
-            ->bookmarks()
-            ->pluck('scholarship_id')
-            ->toArray();
+        $stats = [
+            'total'    => Scholarship::count(),
+            'active'   => Scholarship::where('is_active', true)->count(),
+            'inactive' => Scholarship::where('is_active', false)->count(),
+        ];
 
-        return view('student.scholarships', compact('scholarships', 'bookmarkedIds'));
+        return view('admin.scholarships.index', compact('scholarships', 'stats'));
     }
 
-    public function show($id)
+    /**
+     * PATCH /admin/scholarships/{id}/toggle — toggle active/inactive via JS fetch
+     */
+    public function toggle($id)
     {
-        $scholarship = Scholarship::where('is_active', true)
-            ->findOrFail($id);
+        $scholarship = Scholarship::findOrFail($id);
+        $scholarship->update(['is_active' => !$scholarship->is_active]);
 
-        $isBookmarked = auth()->user()
-            ->bookmarks()
-            ->where('scholarship_id', $id)
-            ->exists();
-
-        return view('student.scholarship-show', compact('scholarship', 'isBookmarked'));
+        return response()->json([
+            'success'   => true,
+            'is_active' => $scholarship->is_active,
+            'message'   => $scholarship->is_active ? 'Scholarship activated.' : 'Scholarship deactivated.',
+        ]);
     }
 }

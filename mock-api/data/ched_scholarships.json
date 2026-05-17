@@ -4,8 +4,8 @@
     {
       "title": "CHED Tulong Dunong Program",
       "provider": "ched",
-      "description": "Financial assistance for deserving but financially disadvantaged students enrolled in priority courses.",
-      "deadline": "2025-08-30",
+      "description": "Financial assistance for deserving but financially disadvantaged students enrolled in priority courses in any CHED-recognized institution nationwide.",
+      "deadline": "2026-08-30",
       "minimum_gwa": 2.50,
       "required_course": null,
       "municipality": null,
@@ -14,10 +14,10 @@
       "source_url": "https://ched.gov.ph/api/scholarships/tulong-dunong"
     },
     {
-      "title": "CHED Merit Scholarship",
+      "title": "CHED Merit Scholarship Program",
       "provider": "ched",
-      "description": "For academically outstanding students in any CHED-recognized institution.",
-      "deadline": "2025-09-15",
+      "description": "For academically outstanding students maintaining a high GWA in any CHED-recognized institution. Renewable every semester subject to maintaining required grades.",
+      "deadline": "2026-09-15",
       "minimum_gwa": 1.50,
       "required_course": null,
       "municipality": null,
@@ -26,16 +26,52 @@
       "source_url": "https://ched.gov.ph/api/scholarships/merit"
     },
     {
-      "title": "CHED Special Study Grant Program",
+      "title": "CHED Special Study Grant Program for IT",
       "provider": "ched",
-      "description": "For students taking priority courses aligned with national development goals.",
-      "deadline": "2025-07-31",
+      "description": "For students taking Information Technology and related courses aligned with the national Digital Philippines agenda and ICT development goals.",
+      "deadline": "2026-07-31",
       "minimum_gwa": 2.00,
       "required_course": "BSIT",
       "municipality": null,
-      "benefits": "PHP 15,000 per semester",
+      "benefits": "PHP 15,000 per semester + laptop allowance",
       "application_link": "https://ched.gov.ph/ssgp",
-      "source_url": "https://ched.gov.ph/api/scholarships/ssgp"
+      "source_url": "https://ched.gov.ph/api/scholarships/ssgp-it"
+    },
+    {
+      "title": "CHED Special Study Grant Program for CS",
+      "provider": "ched",
+      "description": "For students taking Computer Science courses contributing to national technology development goals under the Philippine Development Plan.",
+      "deadline": "2026-07-31",
+      "minimum_gwa": 2.00,
+      "required_course": "BSCS",
+      "municipality": null,
+      "benefits": "PHP 15,000 per semester + laptop allowance",
+      "application_link": "https://ched.gov.ph/ssgp",
+      "source_url": "https://ched.gov.ph/api/scholarships/ssgp-cs"
+    },
+    {
+      "title": "CHED Expanded Students' Grants-in-Aid Program",
+      "provider": "ched",
+      "description": "Expanded scholarship program for poor but deserving students in state universities and colleges. Open to all degree programs.",
+      "deadline": "2026-10-15",
+      "minimum_gwa": 2.50,
+      "required_course": null,
+      "municipality": null,
+      "benefits": "PHP 10,000 per semester + living allowance",
+      "application_link": "https://ched.gov.ph/esgppa",
+      "source_url": "https://ched.gov.ph/api/scholarships/esgppa"
+    },
+    {
+      "title": "CHED Faculty Development Program Scholarship",
+      "provider": "ched",
+      "description": "For graduating students with potential for academic and research excellence who intend to pursue graduate studies and eventually join the academe.",
+      "deadline": "2026-11-30",
+      "minimum_gwa": 1.75,
+      "required_course": null,
+      "municipality": null,
+      "benefits": "Full tuition (graduate) + PHP 8,000 monthly stipend + research allowance",
+      "application_link": "https://ched.gov.ph/fdp",
+      "source_url": "https://ched.gov.ph/api/scholarships/fdp"
     }
   ]
 }

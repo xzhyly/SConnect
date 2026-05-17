@@ -50,7 +50,7 @@ class StudentAuthController extends Controller
             'name'       => 'required|string|max:255',
             'email'      => 'required|email|unique:users',
             'password'   => 'required|min:8|confirmed',
-            'municipality'=> 'required|string',
+            'municipality' => 'required|string',
             'course'     => 'required|string',
             'gwa'        => 'required|numeric|min:1.00|max:5.00',
             'year_level' => 'required|integer|min:1|max:5',
@@ -60,16 +60,14 @@ class StudentAuthController extends Controller
             'name'        => $request->name,
             'email'       => $request->email,
             'password'    => Hash::make($request->password),
-            'municipality'=> $request->municipality,
+            'municipality' => $request->municipality,
             'course'      => $request->course,
             'gwa'         => $request->gwa,
             'year_level'  => $request->year_level,
             'is_admin'    => false,
         ]);
 
-        Auth::login($user);
-
-        return redirect()->route('student.dashboard');
+        return redirect()->route('register')->with('success', 'Account created successfully! Please log in.');
     }
 
     public function logout(Request $request)

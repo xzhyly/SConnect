@@ -14,23 +14,45 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
 
-        $recentScholarships = Scholarship::where('is_active', true)
-            ->orderBy('created_at', 'desc')
-            ->take(5)
+        $scholarships = Scholarship::where('is_active', true)
+            ->where('deadline', '>=', now())
+            ->where(function ($q) use ($user) {
+                $q->where('minimum_gwa', '<=', $user->gwa)
+                    ->orWhereNull('minimum_gwa');
+            })
+            ->where(function ($q) use ($user) {
+                $q->where('required_course', $user->course)
+                    ->orWhereNull('required_course');
+            })
+            ->where(function ($q) use ($user) {
+                $q->where('municipality', $user->municipality)
+                    ->orWhereNull('municipality');
+            })
+            ->orderBy('deadline', 'asc')
+            ->take(6)
             ->get();
 
-        $notifications = Notification::where('user_id', $user->id)
-            ->orderBy('created_at', 'desc')
-            ->take(5)
+        $stats = [
+            'total'      => Scholarship::where('is_active', true)->count(),
+            'matched'    => $scholarships->count(),
+            'bookmarked' => $user->bookmarks()->count(),
+        ];
+
+        $upcomingDeadlines = Scholarship::where('is_active', true)
+            ->whereNotNull('deadline')
+            ->where('deadline', '>=', now())  // ← dagdag ito
+            ->orderBy('deadline', 'asc')
+            ->take(4)
             ->get();
 
-        $bookmarksCount = $user->bookmarks()->count();
+        $bookmarkedIds = $user->bookmarks()->pluck('scholarship_id')->toArray();
 
         return view('student.dashboard', compact(
             'user',
-            'recentScholarships',
-            'notifications',
-            'bookmarksCount'
+            'scholarships',
+            'stats',
+            'upcomingDeadlines',
+            'bookmarkedIds'
         ));
     }
 
@@ -92,5 +114,17 @@ class DashboardController extends Controller
         }
 
         return back()->with('success', 'Profile updated successfully!');
+    }
+
+    public function toggleAlerts(Request $request)
+    {
+        $user = auth()->user();
+        $user->email_notifications = !$user->email_notifications;
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'enabled' => $user->email_notifications
+        ]);
     }
 }

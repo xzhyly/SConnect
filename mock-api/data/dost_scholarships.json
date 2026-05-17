@@ -2,10 +2,10 @@
   "source": "dost_sei",
   "scholarships": [
     {
-      "title": "DOST-SEI Merit Scholarship",
+      "title": "DOST-SEI Merit Scholarship Program",
       "provider": "dost_sei",
-      "description": "For graduating high school students who want to pursue science and technology courses.",
-      "deadline": "2025-10-01",
+      "description": "For incoming college freshmen who wish to pursue science and technology courses. Covers full tuition and provides monthly stipend for living expenses.",
+      "deadline": "2026-10-01",
       "minimum_gwa": 1.75,
       "required_course": "BSIT",
       "municipality": null,
@@ -16,26 +16,50 @@
     {
       "title": "DOST-SEI RA 7687 Scholarship",
       "provider": "dost_sei",
-      "description": "For students from poor but deserving families who wish to pursue science and technology courses.",
-      "deadline": "2025-09-30",
+      "description": "Under Republic Act 7687, this scholarship is for students from poor but deserving families who wish to pursue science and technology-related courses.",
+      "deadline": "2026-09-30",
       "minimum_gwa": 2.00,
       "required_course": "BSCS",
       "municipality": null,
-      "benefits": "Full tuition + PHP 6,000 monthly stipend",
+      "benefits": "Full tuition + PHP 6,000 monthly stipend + miscellaneous fees",
       "application_link": "https://sei.dost.gov.ph/ra7687",
       "source_url": "https://sei.dost.gov.ph/api/scholarships/ra7687"
     },
     {
-      "title": "DOST-SEI Accelerated Science & Technology Human Resource Development Program",
+      "title": "DOST-SEI ASTHRDP Graduate Scholarship",
       "provider": "dost_sei",
-      "description": "Thesis and dissertation support for graduate students in S&T fields.",
-      "deadline": "2025-08-15",
+      "description": "Accelerated Science and Technology Human Resource Development Program for graduate students conducting thesis or dissertation research in S&T fields.",
+      "deadline": "2026-08-15",
       "minimum_gwa": 1.50,
       "required_course": null,
       "municipality": null,
-      "benefits": "PHP 20,000 thesis grant + monthly stipend",
+      "benefits": "PHP 20,000 thesis grant + PHP 9,000 monthly stipend",
       "application_link": "https://sei.dost.gov.ph/asthrdp",
       "source_url": "https://sei.dost.gov.ph/api/scholarships/asthrdp"
+    },
+    {
+      "title": "DOST-SEI Capacity Building Program for S&T",
+      "provider": "dost_sei",
+      "description": "For students enrolled in science and technology undergraduate programs in recognized universities. Aimed at building the country's S&T human resource base.",
+      "deadline": "2026-09-01",
+      "minimum_gwa": 2.00,
+      "required_course": null,
+      "municipality": null,
+      "benefits": "PHP 12,000 per semester + PHP 5,000 equipment allowance",
+      "application_link": "https://sei.dost.gov.ph/cbpst",
+      "source_url": "https://sei.dost.gov.ph/api/scholarships/cbpst"
+    },
+    {
+      "title": "DOST-SEI Engineering Research and Development Scholarship",
+      "provider": "dost_sei",
+      "description": "For students taking engineering and technology courses with demonstrated interest in research and innovation under the Philippine S&T development roadmap.",
+      "deadline": "2026-11-15",
+      "minimum_gwa": 1.75,
+      "required_course": "BSIT",
+      "municipality": null,
+      "benefits": "Full tuition + PHP 8,500 monthly stipend + research grant",
+      "application_link": "https://sei.dost.gov.ph/erds",
+      "source_url": "https://sei.dost.gov.ph/api/scholarships/erds"
     }
   ]
 }

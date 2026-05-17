@@ -4,10 +4,12 @@ services:
   app:
     build: .
     container_name: scholarconnect_app
+    restart: unless-stopped
     ports:
       - "8000:8000"
     volumes:
       - .:/var/www
+      - /var/www/vendor
     depends_on:
       db:
         condition: service_healthy
@@ -28,14 +30,16 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-psecret"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 30s
 
   mock-api:
     build: ./mock-api
     container_name: scholarconnect_mockapi
+    restart: unless-stopped
     ports:
       - "8080:8080"
 
