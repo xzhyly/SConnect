@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Mail\ScholarshipAlert;
+use App\Models\Notification;
 use App\Models\Scholarship;
 use App\Models\SyncLog;
 use App\Models\User;
@@ -14,20 +15,13 @@ use Illuminate\Support\Facades\Mail;
 
 class SyncController extends Controller
 {
-    /**
-     * GET /admin/sync — show the Sync Now page
-     */
     public function index()
     {
         $totalSyncs = SyncLog::count();
         $lastSync   = SyncLog::latest()->first();
-
         return view('admin.sync', compact('totalSyncs', 'lastSync'));
     }
 
-    /**
-     * POST /admin/sync — run the sync (called via JS fetch)
-     */
     public function run(Request $request)
     {
         $sources = [
@@ -67,11 +61,16 @@ class SyncController extends Controller
                     $scholarship = Scholarship::updateOrCreate(
                         ['source_url' => $sourceUrl],
                         [
-                            'title'       => $item['title']       ?? 'Untitled Scholarship',
-                            'provider'    => $item['provider']    ?? $source,
-                            'description' => $item['description'] ?? null,
-                            'deadline'    => $item['deadline']    ?? null,
-                            'is_active'   => true,
+                            'title'            => $item['title']            ?? 'Untitled Scholarship',
+                            'provider'         => $item['provider']         ?? $source,
+                            'description'      => $item['description']      ?? null,
+                            'deadline'         => $item['deadline']         ?? null,
+                            'minimum_gwa'      => $item['minimum_gwa']      ?? null,
+                            'required_course'  => $item['required_course']  ?? null,
+                            'municipality'     => $item['municipality']     ?? null,
+                            'benefits'         => $item['benefits']         ?? null,
+                            'application_link' => $item['application_link'] ?? null,
+                            'is_active'        => true,
                         ]
                     );
 
@@ -93,13 +92,13 @@ class SyncController extends Controller
                 ]);
 
                 $results[$source] = [
-                    'status'       => 'success',
-                    'scholarships' => $fetched,
-                    'created'      => $created,
-                    'updated'      => $updated,
-                    'emails_sent'  => 0,
-                    'message'      => "Fetched {$fetched}, created {$created}, updated {$updated}.",
+                    'status'   => 'success',
+                    'fetched'  => $fetched,
+                    'created'  => $created,
+                    'updated'  => $updated,
+                    'message'  => "Fetched {$fetched}, created {$created}, updated {$updated}.",
                 ];
+
             } catch (\Exception $e) {
                 Log::error("Sync failed for {$source}: " . $e->getMessage());
 
@@ -113,15 +112,16 @@ class SyncController extends Controller
                 ]);
 
                 $results[$source] = [
-                    'status'       => 'failed',
-                    'scholarships' => 0,
-                    'emails_sent'  => 0,
-                    'message'      => $e->getMessage(),
+                    'status'  => 'failed',
+                    'fetched' => 0,
+                    'created' => 0,
+                    'updated' => 0,
+                    'message' => $e->getMessage(),
                 ];
             }
         }
 
-        // Match new scholarships to students and send email alerts
+        // Match new scholarships to students, save to notifications table, and send emails
         $emailsSent = 0;
 
         if ($newScholarships->isNotEmpty()) {
@@ -132,10 +132,30 @@ class SyncController extends Controller
             foreach ($students as $student) {
                 foreach ($newScholarships as $scholarship) {
                     if ($this->studentMatches($student, $scholarship)) {
+
+                        // Check if notification already exists
+                        $alreadyNotified = Notification::where('user_id', $student->id)
+                            ->where('scholarship_id', $scholarship->id)
+                            ->exists();
+
+                        if ($alreadyNotified) continue;
+
+                        // Create notification record
+                        $notification = Notification::create([
+                            'user_id'        => $student->id,
+                            'scholarship_id' => $scholarship->id,
+                            'type'           => 'new_scholarship',
+                            'is_read'        => false,
+                            'email_sent'     => false,
+                        ]);
+
+                        // Send email
                         try {
-                            Mail::to($student->email)->send(
+                            $mailer = str_ends_with($student->email, '@gmail.com') ? 'gmail' : 'smtp';
+                            Mail::mailer($mailer)->to($student->email)->send(
                                 new ScholarshipAlert($student, $scholarship)
                             );
+                            $notification->update(['email_sent' => true]);
                             $emailsSent++;
                         } catch (\Exception $e) {
                             Log::error("Email failed for student {$student->id}: " . $e->getMessage());
@@ -145,37 +165,34 @@ class SyncController extends Controller
             }
         }
 
-        // Convert keyed results to array format the blade expects
-        $sources = [];
+        // Format results
+        $formattedSources = [];
         $totalFetched = 0;
         foreach ($results as $source => $result) {
-            $sources[] = [
+            $formattedSources[] = [
                 'source'  => strtoupper($source),
                 'status'  => $result['status'],
-                'fetched' => $result['scholarships'] ?? 0,
+                'fetched' => $result['fetched'] ?? 0,
                 'created' => $result['created'] ?? 0,
                 'updated' => $result['updated'] ?? 0,
                 'error'   => $result['message'] ?? null,
             ];
-            $totalFetched += $result['scholarships'] ?? 0;
+            $totalFetched += $result['fetched'] ?? 0;
         }
 
-        $totalCreated = array_sum(array_column($sources, 'created'));
-$totalUpdated = array_sum(array_column($sources, 'updated'));
+        $totalCreated = array_sum(array_column($formattedSources, 'created'));
+        $totalUpdated = array_sum(array_column($formattedSources, 'updated'));
 
-return response()->json([
-    'success'       => true,
-    'sources'       => $sources,
-    'total_fetched' => $totalFetched,
-    'total_created' => $totalCreated,
-    'total_updated' => $totalUpdated,
-    'emails_sent'   => $emailsSent,
-]);
+        return response()->json([
+            'success'       => true,
+            'sources'       => $formattedSources,
+            'total_fetched' => $totalFetched,
+            'total_created' => $totalCreated,
+            'total_updated' => $totalUpdated,
+            'emails_sent'   => $emailsSent,
+        ]);
     }
 
-    /**
-     * GET /admin/sync-logs — show logs page
-     */
     public function logs()
     {
         $logs            = SyncLog::latest()->paginate(20);
@@ -185,17 +202,10 @@ return response()->json([
         $totalFetched    = SyncLog::sum('records_fetched');
 
         return view('admin.sync-logs', compact(
-            'logs',
-            'totalSyncs',
-            'successfulSyncs',
-            'failedSyncs',
-            'totalFetched'
+            'logs', 'totalSyncs', 'successfulSyncs', 'failedSyncs', 'totalFetched'
         ));
     }
 
-    /**
-     * Check if a student matches a scholarship
-     */
     private function studentMatches(User $student, Scholarship $scholarship): bool
     {
         if ($scholarship->minimum_gwa && $student->gwa) {

@@ -1,217 +1,149 @@
-# ScholarConnect
-
-**Smart Scholarship Aggregator and Alert System**
-IT 111 Final Project · BSIT 2A · Camarines Norte State College
-
-> Aligned with **SDG 4 — Quality Education**: Ensuring inclusive and equitable access to scholarship opportunities for students in Camarines Norte.
-
----
-
-## What is ScholarConnect?
-
-ScholarConnect is a Laravel 11 web application that automatically aggregates scholarship listings from multiple government sources (CHED, DOST-SEI, and Local Government Units), matches them to registered student profiles, and sends real-time email alerts — so no Camarines Norte student misses a scholarship deadline again.
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Backend Framework | Laravel 11 (PHP 8.2) |
-| Database | MySQL 8.0 |
-| Frontend | Bootstrap 5 (no npm build step) |
-| Containerization | Docker + Docker Compose |
-| Mock API Server | PHP built-in server (3 instances) |
-| Mail | Mailtrap (SMTP) |
-| Queue | Laravel Database Queue |
-
----
-
-## One-Click Setup
-
-### Requirements
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
-- Port `8000` and `8080` must be free
-
-### Start the app
-
-```bash
-git clone <repo-url> scholarconnect
-cd scholarconnect
-docker-compose up --build
-```
-
-That's it. The `entrypoint.sh` will automatically:
-
-1. Run `composer install` inside the container
-2. Check and configure `.env`
-3. Generate `APP_KEY`
-4. Run `migrate:fresh --seed` (fresh database with demo data)
-5. Start the queue worker and Laravel dev server
-
-App will be live at: **http://localhost:8000**
-
-### Updating mock API data (no rebuild needed)
-
-The `mock-api/data/` folder is volume-mounted. To update JSON files:
-
-```bash
-# Edit any file in mock-api/data/
-docker-compose restart mock-api
-```
-
-### Full reset
-
-```bash
-docker-compose down -v
-docker-compose up --build
-```
-
----
-
-## Demo Credentials
-
-### Admin Account
-| Field | Value |
-|---|---|
-| Email | `admin@scholarconnect.test` |
-| Password | `password` |
-
-### Student Accounts
-| Name | Email | Password |
-|---|---|---|
-| Student 1 | `student1@scholarconnect.test` | `password` |
-| Student 2 | `student2@scholarconnect.test` | `password` |
-| Student 3 | `student3@scholarconnect.test` | `password` |
-
----
-
-## Live Demo Steps
-
-Follow these steps in order during the exhibit demo:
-
-**1. Show the landing page**
-Navigate to `http://localhost:8000` — show the public scholarship browse page. No login required.
-
-**2. Log in as Admin**
-Go to `/login`, use `admin@scholarconnect.test` / `password`.
-
-**3. Trigger a Sync**
-On the Admin Dashboard, click **"Sync Scholarships"**. This sends HTTP GET requests to all 3 mock API servers, normalizes the data, and stores it in MySQL.
-
-**4. Show sync results**
-The dashboard displays: sources fetched, total scholarships created/updated, and emails sent to matched students.
-
-**5. Log out → Log in as Student**
-Use `student1@scholarconnect.test` / `password`.
-
-**6. Show the Student Dashboard**
-Student sees only scholarships matched to their profile (course, year level, municipality).
-
-**7. Show Email Notification**
-Open Mailtrap inbox — show the scholarship alert email sent to the student during sync.
-
-**8. Browse all scholarships**
-Navigate to `/scholarships` — show the full list with filtering. Highlight the 12 Camarines Norte municipality-specific LGU grants.
-
----
-
-## System Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     Docker Network                          │
-│                                                             │
-│  ┌──────────────┐    HTTP GET    ┌─────────────────────┐   │
-│  │  Mock API    │◄───────────────│                     │   │
-│  │  Server      │                │  ScholarConnect     │   │
-│  │  :8080       │                │  Middleware          │   │
-│  │              │                │  (normalizes data)  │   │
-│  │  · CHED      │────────────────►                     │   │
-│  │  · DOST-SEI  │   JSON resp.   └────────┬────────────┘   │
-│  │  · LGU       │                         │                │
-│  └──────────────┘                         │ Eloquent ORM   │
-│                                           ▼                │
-│                                  ┌─────────────────┐       │
-│                                  │   MySQL 8.0     │       │
-│                                  │   Database      │       │
-│                                  └────────┬────────┘       │
-│                                           │                │
-│                          ┌────────────────┼──────────────┐ │
-│                          ▼                ▼              │ │
-│                 ┌──────────────┐  ┌──────────────┐      │ │
-│                 │ Notification │  │ Student      │      │ │
-│                 │ Service      │  │ Dashboard    │      │ │
-│                 │ (match +     │  │ (Blade views)│      │ │
-│                 │  email)      │  └──────────────┘      │ │
-│                 └──────┬───────┘                        │ │
-│                        │ SMTP                           │ │
-│                        ▼                               │ │
-│                 ┌──────────────┐                       │ │
-│                 │  Mailtrap    │                       │ │
-│                 │  (email)     │                       │ │
-│                 └──────────────┘                       │ │
-└─────────────────────────────────────────────────────────────┘
-```
-
-**Data flow:** Mock APIs → HTTP GET → `ScholarConnectMiddleware` → Eloquent → MySQL → `NotificationService` → SMTP → Student email + Student Dashboard
-
----
-
-## SDG 4 — Quality Education
-
-ScholarConnect directly supports **UN Sustainable Development Goal 4** by:
-
-- **Reducing information barriers** — Students in remote Camarines Norte municipalities (Capalonga, San Lorenzo Ruiz, Talisay, etc.) no longer need to manually check multiple government websites for scholarship updates.
-- **Automated matching** — The system matches scholarships to student profiles by course, year level, and municipality — surfacing only relevant opportunities.
-- **Proactive alerts** — Email notifications ensure students are informed before deadlines, not after.
-- **Coverage of 12 municipalities** — LGU scholarship data covers all 12 municipalities of Camarines Norte: Daet, Labo, Vinzons, Capalonga, Jose Panganiban, Mercedes, Paracale, San Lorenzo Ruiz, Santa Elena, Talisay, Basud, and a province-wide grant.
-- **Multi-source aggregation** — CHED, DOST-SEI, and LGU scholarships are unified in one platform — 23 scholarships across all sources.
-
----
-
-## Project Structure
-
-```
-scholarconnect/
-├── app/
-│   ├── Http/
-│   │   ├── Controllers/
-│   │   │   ├── SyncController.php       # HTTP sync trigger, JSON response
-│   │   │   └── ...
-│   │   └── Middleware/
-│   │       └── ScholarConnectMiddleware.php  # API fetch + normalize (Minguez)
-│   ├── Models/                          # Eloquent models (Villafranca)
-│   └── Services/
-│       └── NotificationService.php      # Match + email dispatch
-├── resources/views/                     # Blade templates (Lagrosa, Abiera)
-├── mock-api/
-│   ├── data/
-│   │   ├── ched_scholarships.json       # 6 CHED scholarships
-│   │   ├── dost_scholarships.json       # 5 DOST-SEI scholarships
-│   │   └── lgu_scholarships.json        # 12 LGU scholarships (all CN municipalities)
-│   └── server.php
-├── Dockerfile
-├── docker-compose.yml
-└── entrypoint.sh
-```
-
----
-
-## Team
-
-| Member | Role | Responsibilities |
-|---|---|---|
-| **Minguez** | Lead Architect | `ScholarConnectMiddleware.php`, API contracts, data normalization |
-| **Villafranca** | Backend Developer | Database schema, Eloquent models, business logic |
-| **Lagrosa** | Frontend Developer | Student-facing UI, Bootstrap layouts, scholarship browse |
-| **Abiera** | Frontend Developer | Admin dashboard UI, charts, notification management |
-
----
-
-## Important Notes for Graders
-
-- Running `docker-compose up --build` always produces a **clean, consistent state** — fresh migrations and seeded demo accounts every time.
-- The `vendor/` folder is intentionally absent from the project root. The container installs its own dependencies via `entrypoint.sh`. Do not run `composer install` on Windows.
-- All 3 mock API servers run inside the same Docker network — no external internet connection required to demo the app.
-- Mail notifications require a valid Mailtrap SMTP config in `.env` (`MAIL_USERNAME`, `MAIL_PASSWORD`).
+{
+  "source": "lgu",
+  "scholarships": [
+    {
+      "title": "Daet LGU Academic Excellence Scholarship",
+      "provider": "lgu",
+      "description": "For deserving students from Daet who are enrolled in any college degree program. Awarded to students who demonstrate academic excellence and financial need.",
+      "deadline": "2026-08-31",
+      "minimum_gwa": 2.00,
+      "required_course": null,
+      "municipality": "Daet",
+      "benefits": "PHP 5,000 per semester + school supplies allowance",
+      "application_link": "https://daet.gov.ph/scholarship",
+      "source_url": "https://daet.gov.ph/api/scholarships/academic-excellence"
+    },
+    {
+      "title": "Labo Municipal Scholarship Grant",
+      "provider": "lgu",
+      "description": "Open to all bonafide residents of Labo pursuing undergraduate studies. Priority given to students from low-income families.",
+      "deadline": "2026-09-15",
+      "minimum_gwa": 2.25,
+      "required_course": null,
+      "municipality": "Labo",
+      "benefits": "PHP 4,000 per semester",
+      "application_link": "https://labo.gov.ph/scholarship",
+      "source_url": "https://labo.gov.ph/api/scholarships/municipal-grant"
+    },
+    {
+      "title": "Vinzons Youth Development Scholarship",
+      "provider": "lgu",
+      "description": "Scholarship for youth residents of Vinzons enrolled in any recognized higher education institution. Aimed at developing the youth workforce of the municipality.",
+      "deadline": "2026-08-15",
+      "minimum_gwa": 2.25,
+      "required_course": null,
+      "municipality": "Vinzons",
+      "benefits": "PHP 4,500 per semester",
+      "application_link": "https://vinzons.gov.ph/scholarship",
+      "source_url": "https://vinzons.gov.ph/api/scholarships/youth-development"
+    },
+    {
+      "title": "Capalonga Municipal Education Assistance",
+      "provider": "lgu",
+      "description": "Education assistance program for Capalonga residents in financial need. Supports students in continuing their college education without interruption.",
+      "deadline": "2026-09-30",
+      "minimum_gwa": 2.50,
+      "required_course": null,
+      "municipality": "Capalonga",
+      "benefits": "PHP 3,500 per semester + transportation allowance",
+      "application_link": "https://capalonga.gov.ph/scholarship",
+      "source_url": "https://capalonga.gov.ph/api/scholarships/education-assistance"
+    },
+    {
+      "title": "Jose Panganiban Scholars Program",
+      "provider": "lgu",
+      "description": "For residents of Jose Panganiban pursuing technology and vocational courses. Prioritizes students aligned with the municipality's mining and industrial development goals.",
+      "deadline": "2026-07-31",
+      "minimum_gwa": 2.25,
+      "required_course": null,
+      "municipality": "Jose Panganiban",
+      "benefits": "PHP 5,500 per semester",
+      "application_link": "https://josepanganiban.gov.ph/scholarship",
+      "source_url": "https://josepanganiban.gov.ph/api/scholarships/scholars-program"
+    },
+    {
+      "title": "Mercedes Municipal Scholarship Award",
+      "provider": "lgu",
+      "description": "Annual scholarship for academically outstanding students who are residents of Mercedes and enrolled in any state college or university.",
+      "deadline": "2026-08-31",
+      "minimum_gwa": 2.00,
+      "required_course": null,
+      "municipality": "Mercedes",
+      "benefits": "PHP 4,000 per semester + book allowance",
+      "application_link": "https://mercedes.gov.ph/scholarship",
+      "source_url": "https://mercedes.gov.ph/api/scholarships/municipal-award"
+    },
+    {
+      "title": "Paracale Gold Scholars Grant",
+      "provider": "lgu",
+      "description": "Scholarship grant for Paracale residents pursuing undergraduate degrees. Named in honor of the municipality's gold mining heritage and commitment to education.",
+      "deadline": "2026-09-01",
+      "minimum_gwa": 2.25,
+      "required_course": null,
+      "municipality": "Paracale",
+      "benefits": "PHP 4,500 per semester",
+      "application_link": "https://paracale.gov.ph/scholarship",
+      "source_url": "https://paracale.gov.ph/api/scholarships/gold-scholars"
+    },
+    {
+      "title": "San Lorenzo Ruiz Educational Assistance Program",
+      "provider": "lgu",
+      "description": "In honor of the patron saint of the municipality, this program supports financially challenged students from San Lorenzo Ruiz in pursuing higher education.",
+      "deadline": "2026-10-15",
+      "minimum_gwa": 2.50,
+      "required_course": null,
+      "municipality": "San Lorenzo Ruiz",
+      "benefits": "PHP 3,500 per semester",
+      "application_link": "https://sanlorenzoruiz.gov.ph/scholarship",
+      "source_url": "https://sanlorenzoruiz.gov.ph/api/scholarships/educational-assistance"
+    },
+    {
+      "title": "Santa Elena Academic Scholarship",
+      "provider": "lgu",
+      "description": "For bonafide residents of Santa Elena who are enrolled full-time in any CHED-recognized institution. Subject to good moral character and financial need assessment.",
+      "deadline": "2026-08-31",
+      "minimum_gwa": 2.25,
+      "required_course": null,
+      "municipality": "Santa Elena",
+      "benefits": "PHP 4,000 per semester + miscellaneous fee coverage",
+      "application_link": "https://santaelena.gov.ph/scholarship",
+      "source_url": "https://santaelena.gov.ph/api/scholarships/academic"
+    },
+    {
+      "title": "Talisay Municipal Education Grant",
+      "provider": "lgu",
+      "description": "Education grant for deserving students from Talisay. Covers basic tuition and living allowance to help students focus on their studies.",
+      "deadline": "2026-09-15",
+      "minimum_gwa": 2.50,
+      "required_course": null,
+      "municipality": "Talisay",
+      "benefits": "PHP 3,500 per semester + PHP 1,000 monthly living allowance",
+      "application_link": "https://talisay.gov.ph/scholarship",
+      "source_url": "https://talisay.gov.ph/api/scholarships/education-grant"
+    },
+    {
+      "title": "Basud Youth Scholarship Program",
+      "provider": "lgu",
+      "description": "For young residents of Basud who wish to pursue college education. Encourages youth participation in higher learning and community development.",
+      "deadline": "2026-08-15",
+      "minimum_gwa": 2.25,
+      "required_course": null,
+      "municipality": "Basud",
+      "benefits": "PHP 4,000 per semester",
+      "application_link": "https://basud.gov.ph/scholarship",
+      "source_url": "https://basud.gov.ph/api/scholarships/youth-program"
+    },
+    {
+      "title": "Camarines Norte Provincial Scholarship Program",
+      "provider": "lgu",
+      "description": "Province-wide scholarship open to all residents of Camarines Norte. Covers students from all 12 municipalities pursuing any undergraduate degree in a recognized institution.",
+      "deadline": "2026-10-31",
+      "minimum_gwa": 2.00,
+      "required_course": null,
+      "municipality": null,
+      "benefits": "PHP 6,000 per semester + PHP 2,000 book allowance",
+      "application_link": "https://camarines-norte.gov.ph/scholarship",
+      "source_url": "https://camarines-norte.gov.ph/api/scholarships/provincial-program"
+    }
+  ]
+} 
