@@ -11,13 +11,36 @@ cd /var/www
 echo "[1/5] Installing Composer dependencies..."
 composer install --no-interaction --prefer-dist --optimize-autoloader
 
-# ── Step 2: Copy .env if missing ─────────────────────────────────────
-if [ ! -f ".env" ]; then
-    echo "[2/5] Creating .env from .env.example..."
-    cp .env.example .env
-else
-    echo "[2/5] .env already exists, skipping."
-fi
+# ── Step 2: Always write .env from environment variables ─────────────
+echo "[2/5] Writing .env from environment..."
+cat > .env << EOF
+APP_NAME=ScholarConnect
+APP_ENV=${APP_ENV:-production}
+APP_KEY=${APP_KEY}
+APP_DEBUG=${APP_DEBUG:-false}
+APP_URL=${APP_URL:-http://localhost:8000}
+
+DB_CONNECTION=mysql
+DB_HOST=${DB_HOST}
+DB_PORT=${DB_PORT:-3306}
+DB_DATABASE=${DB_DATABASE}
+DB_USERNAME=${DB_USERNAME}
+DB_PASSWORD=${DB_PASSWORD}
+
+CACHE_DRIVER=file
+SESSION_DRIVER=file
+QUEUE_CONNECTION=sync
+
+MAIL_MAILER=${MAIL_MAILER:-smtp}
+MAIL_HOST=${MAIL_HOST}
+MAIL_PORT=${MAIL_PORT:-2525}
+MAIL_USERNAME=${MAIL_USERNAME}
+MAIL_PASSWORD=${MAIL_PASSWORD}
+MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS:-noreply@scholarconnect.test}
+
+MOCK_API_URL=${MOCK_API_URL:-http://localhost:8080}
+EOF
+echo "      Done."
 
 # ── Step 3: Generate app key if not set ──────────────────────────────
 APP_KEY_VALUE=$(grep "^APP_KEY=" .env | cut -d '=' -f2)
