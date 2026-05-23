@@ -8,15 +8,19 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('notifications', function (Blueprint $table) {
-            $table->timestamp('read_at')->nullable();
-        });
+        if (Schema::hasTable('notifications') && !Schema::hasColumn('notifications', 'read_at')) {
+            Schema::table('notifications', function (Blueprint $table) {
+                $table->timestamp('read_at')->nullable();
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::table('notifications', function (Blueprint $table) {
-            $table->dropColumn('read_at');
-        });
+        if (Schema::hasTable('notifications') && Schema::hasColumn('notifications', 'read_at')) {
+            Schema::table('notifications', function (Blueprint $table) {
+                $table->dropColumn('read_at');
+            });
+        }
     }
 };
