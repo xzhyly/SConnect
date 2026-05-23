@@ -25,11 +25,12 @@ class SyncController extends Controller
 
     public function run(Request $request)
     {
-        $sources = [
-            'ched'     => 'http://mock-api:8080/api/ched',
-            'dost_sei' => 'http://mock-api:8080/api/dost',
-            'lgu'      => 'http://mock-api:8080/api/lgu',
-        ];
+       $baseUrl = env('MOCK_API_URL', 'http://mock-api:8080');
+$sources = [
+    'ched'     => "{$baseUrl}/api/ched",
+    'dost_sei' => "{$baseUrl}/api/dost",
+    'lgu'      => "{$baseUrl}/api/lgu",
+];
 
         $results         = [];
         $newScholarships = collect();
