@@ -127,7 +127,7 @@ $sources = [
         // Notify eligible students for new scholarships only
         $emailsSent = 0;
 
-        if ($newScholarships->isNotEmpty()) {
+       if (false && $newScholarships->isNotEmpty()) {
             $students = User::where('is_admin', false)
                 ->where('email_notifications', true)
                 ->get();
