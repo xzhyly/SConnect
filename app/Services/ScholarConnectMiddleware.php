@@ -8,12 +8,17 @@ use Illuminate\Support\Facades\Log;
 
 class ScholarConnectMiddleware
 {
-    protected array $sources = [
-        'ched' => 'http://mock-api:8080/api/ched',
-        'dost' => 'http://mock-api:8080/api/dost',
-        'lgu'  => 'http://mock-api:8080/api/lgu',
-    ];
+   protected array $sources;
 
+public function __construct()
+{
+    $baseUrl = env('MOCK_API_URL', 'http://mock-api:8080');
+    $this->sources = [
+        'ched' => "{$baseUrl}/api/ched",
+        'dost' => "{$baseUrl}/api/dost",
+        'lgu'  => "{$baseUrl}/api/lgu",
+    ];
+}
     public function fetchAll(): array
     {
         $results = [];
