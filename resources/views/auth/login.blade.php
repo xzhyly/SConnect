@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ScholarConnect - Login</title>
+    <title>ScholarConnect | Login</title>
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><polygon points='50,18 85,35 50,52 15,35' fill='%23F5A623'/><rect x='43' y='52' width='14' height='22' rx='4' fill='%23F5A623'/><ellipse cx='50' cy='74' rx='12' ry='6' fill='%23F5A623'/><rect x='82' y='35' width='5' height='18' rx='2.5' fill='%23F5A623'/><circle cx='84.5' cy='55' r='4' fill='%23F5A623'/></svg>">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -274,13 +276,13 @@
 <body>
 
     <nav class="navbar d-flex justify-content-between align-items-center">
-        <div class="brand-container">
+        <a href="{{ route('home') }}" style="text-decoration:none;" class="brand-container">
             <i class="bi bi-mortarboard-fill brand-icon"></i>
             <div class="brand-text">
                 <span class="brand-name">ScholarConnect</span>
                 <span class="brand-sub">Camarines Norte</span>
             </div>
-        </div>
+        </a>
 
         <div class="nav-links d-none d-md-flex">
             <a href="{{ route('browse') }}">Browse</a>

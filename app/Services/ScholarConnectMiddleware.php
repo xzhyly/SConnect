@@ -42,11 +42,19 @@ class ScholarConnectMiddleware
                 $scholarships = $data['scholarships'] ?? $data;
 
                 foreach ($scholarships as $item) {
+                    // --- R2 GUARD: skip if this source_url belongs to a manual entry ---
+                    // (In practice manual entries have no source_url, so updateOrCreate
+                    //  won't match them. This is an extra safety net.)
+                    $existing = Scholarship::where('source_url', $item['source_url'] ?? null)->first();
+                    if ($existing && $existing->source_type === 'manual') {
+                        continue;
+                    }
+
                     Scholarship::updateOrCreate(
-                        ['source_url' => $item['source_url']],
+                        ['source_url' => $item['source_url'] ?? null],
                         [
                             'title'            => $item['title'],
-                            'provider'         => $item['provider'],
+                            'provider'         => $item['provider'] ?? $source,
                             'description'      => $item['description'] ?? null,
                             'deadline'         => $item['deadline'] ?? null,
                             'minimum_gwa'      => $item['minimum_gwa'] ?? null,
@@ -54,6 +62,7 @@ class ScholarConnectMiddleware
                             'municipality'     => $item['municipality'] ?? null,
                             'benefits'         => $item['benefits'] ?? null,
                             'application_link' => $item['application_link'] ?? null,
+                            'source_type'      => 'api',   // always 'api' for synced records
                             'is_active'        => true,
                         ]
                     );

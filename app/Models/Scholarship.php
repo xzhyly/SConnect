@@ -14,9 +14,12 @@ class Scholarship extends Model
         'minimum_gwa',
         'required_course',
         'municipality',
+        'year_level',        // ← ADDED
         'benefits',
         'application_link',
         'source_url',
+        'source_type',
+        'organization_name',
         'is_active',
     ];
 

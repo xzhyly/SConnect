@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\Notification;
 use App\Models\Scholarship;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -17,7 +18,7 @@ class DashboardController extends Controller
         $scholarships = Scholarship::where('is_active', true)
             ->where('deadline', '>=', now())
             ->where(function ($q) use ($user) {
-                $q->where('minimum_gwa', '<=', $user->gwa)
+                $q->where('minimum_gwa', '>=', $user->gwa)
                     ->orWhereNull('minimum_gwa');
             })
             ->where(function ($q) use ($user) {
@@ -40,7 +41,7 @@ class DashboardController extends Controller
 
         $upcomingDeadlines = Scholarship::where('is_active', true)
             ->whereNotNull('deadline')
-            ->where('deadline', '>=', now())  // ← dagdag ito
+            ->where('deadline', '>=', now())
             ->orderBy('deadline', 'asc')
             ->take(4)
             ->get();
@@ -68,13 +69,28 @@ class DashboardController extends Controller
         return view('student.notifications', compact('notifications'));
     }
 
-    public function markRead(Request $request, $id)
+    public function markRead(Request $request, $id): JsonResponse
     {
         $notification = Notification::where('id', $id)
             ->where('user_id', auth()->id())
             ->firstOrFail();
 
-        $notification->update(['is_read' => true]);
+        $notification->update([
+            'is_read' => true,
+            'read_at' => now(),
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function markAllRead(): JsonResponse
+    {
+        Notification::where('user_id', auth()->id())
+            ->where('is_read', false)
+            ->update([
+                'is_read' => true,
+                'read_at' => now(),
+            ]);
 
         return response()->json(['success' => true]);
     }
@@ -124,7 +140,7 @@ class DashboardController extends Controller
 
         return response()->json([
             'success' => true,
-            'enabled' => $user->email_notifications
+            'enabled' => $user->email_notifications,
         ]);
     }
 }

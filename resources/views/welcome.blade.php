@@ -4,10 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ScholarConnect — Camarines Norte</title>
+    <title>ScholarConnect</title>
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><polygon points='50,18 85,35 50,52 15,35' fill='%23F5A623'/><rect x='43' y='52' width='14' height='22' rx='4' fill='%23F5A623'/><ellipse cx='50' cy='74' rx='12' ry='6' fill='%23F5A623'/><rect x='82' y='35' width='5' height='18' rx='2.5' fill='%23F5A623'/><circle cx='84.5' cy='55' r='4' fill='%23F5A623'/></svg>">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -85,6 +88,7 @@
             width: 200%;
             height: 200%;
             background: radial-gradient(circle, rgba(245, 166, 35, 0.05) 0%, transparent 60%);
+            pointer-events: none;
         }
 
         .hero-title {
@@ -421,7 +425,7 @@
 
     {{-- HERO --}}
     <div class="hero-section">
-        <div class="container">
+        <div class="container" style="position:relative; z-index:1;">
             <h1 class="hero-title">
                 Find Scholarships in<br>
                 <span>Camarines Norte</span><br>
@@ -560,7 +564,7 @@
                                 <div class="scholarship-meta">
                                     <i class="bi bi-mortarboard-fill" style="color:#F5A623;"></i>
                                     GWA Required:
-                                    {{ $scholarship->minimum_gwa ? $scholarship->minimum_gwa * 100 . '%' : 'Open to all' }}
+                                    {{ $scholarship->minimum_gwa ? number_format($scholarship->minimum_gwa, 2) : 'Open to all' }}
                                 </div>
                                 <div class="scholarship-amount">
                                     <i class="bi bi-cash-stack" style="color:#F5A623;"></i>
@@ -601,7 +605,7 @@
     </div>
 
     <footer>
-        © 2026 ScholarConnect — Camarines Norte. Supporting <a href="{{ route('about') }}">SDG 4: Quality
+        © 2026 ScholarConnect · Camarines Norte · Supporting <a href="{{ route('about') }}">SDG 4: Quality
             Education</a>.
     </footer>
 

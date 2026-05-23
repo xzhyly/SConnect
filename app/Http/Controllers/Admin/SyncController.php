@@ -8,6 +8,7 @@ use App\Models\Notification;
 use App\Models\Scholarship;
 use App\Models\SyncLog;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -68,6 +69,7 @@ class SyncController extends Controller
                             'minimum_gwa'      => $item['minimum_gwa']      ?? null,
                             'required_course'  => $item['required_course']  ?? null,
                             'municipality'     => $item['municipality']     ?? null,
+                            'year_level'       => $item['year_level']       ?? null,
                             'benefits'         => $item['benefits']         ?? null,
                             'application_link' => $item['application_link'] ?? null,
                             'is_active'        => true,
@@ -92,11 +94,11 @@ class SyncController extends Controller
                 ]);
 
                 $results[$source] = [
-                    'status'   => 'success',
-                    'fetched'  => $fetched,
-                    'created'  => $created,
-                    'updated'  => $updated,
-                    'message'  => "Fetched {$fetched}, created {$created}, updated {$updated}.",
+                    'status'  => 'success',
+                    'fetched' => $fetched,
+                    'created' => $created,
+                    'updated' => $updated,
+                    'message' => "Fetched {$fetched}, created {$created}, updated {$updated}.",
                 ];
 
             } catch (\Exception $e) {
@@ -121,7 +123,7 @@ class SyncController extends Controller
             }
         }
 
-        // Match new scholarships to students, save to notifications table, and send emails
+        // Notify eligible students for new scholarships only
         $emailsSent = 0;
 
         if ($newScholarships->isNotEmpty()) {
@@ -133,14 +135,12 @@ class SyncController extends Controller
                 foreach ($newScholarships as $scholarship) {
                     if ($this->studentMatches($student, $scholarship)) {
 
-                        // Check if notification already exists
                         $alreadyNotified = Notification::where('user_id', $student->id)
                             ->where('scholarship_id', $scholarship->id)
                             ->exists();
 
                         if ($alreadyNotified) continue;
 
-                        // Create notification record
                         $notification = Notification::create([
                             'user_id'        => $student->id,
                             'scholarship_id' => $scholarship->id,
@@ -149,12 +149,8 @@ class SyncController extends Controller
                             'email_sent'     => false,
                         ]);
 
-                        // Send email
                         try {
-                            $mailer = str_ends_with($student->email, '@gmail.com') ? 'gmail' : 'smtp';
-                            Mail::mailer($mailer)->to($student->email)->send(
-                                new ScholarshipAlert($student, $scholarship)
-                            );
+                            Mail::to($student->email)->send(new ScholarshipAlert($student, $scholarship));
                             $notification->update(['email_sent' => true]);
                             $emailsSent++;
                         } catch (\Exception $e) {
@@ -165,7 +161,6 @@ class SyncController extends Controller
             }
         }
 
-        // Format results
         $formattedSources = [];
         $totalFetched = 0;
         foreach ($results as $source => $result) {
@@ -190,6 +185,77 @@ class SyncController extends Controller
             'total_created' => $totalCreated,
             'total_updated' => $totalUpdated,
             'emails_sent'   => $emailsSent,
+            'timestamp'     => now()->format('M d, Y h:i A'),
+        ]);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // NOTIFY ALL STUDENTS — manual trigger by admin
+    // Does NOT re-sync API data — just re-dispatches notifications
+    // Skips students already notified for each scholarship (no duplicates)
+    // ─────────────────────────────────────────────────────────────────────────
+    public function notifyAll(): JsonResponse
+    {
+        $scholarships = Scholarship::where('is_active', true)
+            ->where(function ($q) {
+                $q->whereNull('deadline')->orWhere('deadline', '>=', now());
+            })
+            ->get();
+
+        $students = User::where('is_admin', false)
+            ->where('email_notifications', true)
+            ->get();
+
+        $notified  = 0;
+        $skipped   = 0;
+        $emailsSent = 0;
+
+        foreach ($scholarships as $scholarship) {
+            foreach ($students as $student) {
+                if (!$this->studentMatches($student, $scholarship)) {
+                    continue;
+                }
+
+                // Skip if already notified
+                $alreadyNotified = Notification::where('user_id', $student->id)
+                    ->where('scholarship_id', $scholarship->id)
+                    ->exists();
+
+                if ($alreadyNotified) {
+                    $skipped++;
+                    continue;
+                }
+
+                // Create notification record
+                $notification = Notification::create([
+                    'user_id'        => $student->id,
+                    'scholarship_id' => $scholarship->id,
+                    'type'           => 'new_scholarship',
+                    'is_read'        => false,
+                    'email_sent'     => false,
+                ]);
+
+                $notified++;
+
+                // Send email
+                try {
+                    Mail::to($student->email)->send(new ScholarshipAlert($student, $scholarship));
+                    $notification->update(['email_sent' => true]);
+                    $emailsSent++;
+                } catch (\Exception $e) {
+                    Log::error("Notify All — email failed for student {$student->id}: " . $e->getMessage());
+                }
+            }
+        }
+
+        return response()->json([
+            'success'     => true,
+            'notified'    => $notified,
+            'skipped'     => $skipped,
+            'emails_sent' => $emailsSent,
+            'message'     => $notified > 0
+                ? "{$notified} student" . ($notified !== 1 ? 's' : '') . " notified. {$skipped} already up to date."
+                : "All students are already up to date. No new notifications sent.",
         ]);
     }
 
@@ -226,6 +292,12 @@ class SyncController extends Controller
             $schMun = strtolower(trim($scholarship->municipality));
             $stuMun = strtolower(trim($student->municipality));
             if ($schMun !== 'all' && $schMun !== $stuMun) {
+                return false;
+            }
+        }
+
+        if ($scholarship->year_level && $student->year_level) {
+            if ((int) $scholarship->year_level !== (int) $student->year_level) {
                 return false;
             }
         }

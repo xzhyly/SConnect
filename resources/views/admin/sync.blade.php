@@ -81,6 +81,30 @@
                         <i class="bi bi-arrow-repeat me-2"></i> Sync Now
                     </button>
 
+                    {{-- Divider --}}
+                    <div class="d-flex align-items-center gap-2 my-3">
+                        <hr class="flex-grow-1 m-0">
+                        <span style="font-size:0.72rem;color:#B0BEC5;font-weight:600;">OR</span>
+                        <hr class="flex-grow-1 m-0">
+                    </div>
+
+                    {{-- Notify All Button --}}
+                    <button id="notifyAllBtn" class="btn w-100 py-2"
+                        style="border-radius:10px;font-size:0.9rem;font-weight:600;background:rgba(37,99,235,0.08);color:#2563EB;border:1.5px solid rgba(37,99,235,0.2);">
+                        <i class="bi bi-bell-fill me-2"></i> Notify All Students
+                    </button>
+                    <p class="text-muted text-center mt-2 mb-0" style="font-size:0.75rem;">
+                        Re-sends notifications to all eligible students for active scholarships.<br>
+                        Does <strong>not</strong> re-sync API data. Skips already-notified students.
+                    </p>
+
+                    {{-- Notify All Result --}}
+                    <div id="notifyAllResult" class="mt-3 rounded-3 p-3 d-none"
+                        style="background:rgba(37,99,235,0.06);border:1px solid rgba(37,99,235,0.15);">
+                        <i class="bi bi-check-circle-fill me-2" style="color:#2563EB;"></i>
+                        <span id="notifyAllText" style="font-size:0.84rem;color:#2563EB;font-weight:600;"></span>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -95,7 +119,8 @@
                     <i class="bi bi-cloud-download" style="font-size:3rem;color:#B0BEC5;"></i>
                     <h6 class="mt-3 mb-1" style="color:#1B2A47;font-weight:600;">Ready to Sync</h6>
                     <p class="text-muted" style="font-size:0.83rem;max-width:280px;">
-                        Click <strong>Sync Now</strong> to fetch the latest scholarships from all API sources.
+                        Click <strong>Sync Now</strong> to fetch the latest scholarships from all API sources,
+                        or <strong>Notify All Students</strong> to re-send notifications without syncing.
                     </p>
                 </div>
             </div>
@@ -108,6 +133,17 @@
                     <h6 style="color:#1B2A47;font-weight:600;">Syncing...</h6>
                     <p class="text-muted" style="font-size:0.83rem;">Fetching from CHED, DOST, and LGU APIs. Please wait.
                     </p>
+                </div>
+            </div>
+
+            {{-- Notify All Loading State --}}
+            <div id="notifyLoadingState" class="card border-0 shadow-sm h-100 d-none" style="border-radius:14px;">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center text-center p-5"
+                    style="min-height:380px;">
+                    <div class="spinner-border mb-3" style="color:#2563EB;width:3rem;height:3rem;" role="status"></div>
+                    <h6 style="color:#1B2A47;font-weight:600;">Notifying Students...</h6>
+                    <p class="text-muted" style="font-size:0.83rem;">Checking eligibility and sending notifications. Please
+                        wait.</p>
                 </div>
             </div>
 
@@ -152,7 +188,8 @@
 
                         {{-- Sync Again --}}
                         <div class="mt-3 text-end">
-                            <button id="syncAgainBtn" class="btn btn-sm btn-amber px-4" style="border-radius:8px;">
+                            <button id="syncAgainBtn" class="btn btn-amber px-4"
+                                style="border-radius:8px;font-size:0.85rem;">
                                 <i class="bi bi-arrow-repeat me-1"></i> Sync Again
                             </button>
                         </div>
@@ -164,7 +201,7 @@
             <div id="errorState" class="card border-0 shadow-sm h-100 d-none" style="border-radius:14px;">
                 <div class="card-body d-flex flex-column align-items-center justify-content-center text-center p-5"
                     style="min-height:380px;">
-                    <i class="bi bi-exclamation-triangle-fill" style="font-size:3rem;color:#DC2626;"></i>
+                    <i class="bi bi-x-circle-fill" style="font-size:3rem;color:#DC2626;"></i>
                     <h6 class="mt-3 mb-1" style="color:#1B2A47;font-weight:600;">Sync Failed</h6>
                     <p id="errorMsg" class="text-muted" style="font-size:0.83rem;max-width:300px;"></p>
                     <button id="retryBtn" class="btn btn-amber px-4 mt-2" style="border-radius:8px;">
@@ -183,11 +220,17 @@
         const syncBtn = document.getElementById('syncBtn');
         const syncAgainBtn = document.getElementById('syncAgainBtn');
         const retryBtn = document.getElementById('retryBtn');
+        const notifyAllBtn = document.getElementById('notifyAllBtn');
 
         const idleState = document.getElementById('idleState');
         const loadingState = document.getElementById('loadingState');
+        const notifyLoadingState = document.getElementById('notifyLoadingState');
         const resultsState = document.getElementById('resultsState');
         const errorState = document.getElementById('errorState');
+
+        const csrfToken = (document.querySelector('meta[name="csrf-token"]') || {
+            getAttribute: () => '{{ csrf_token() }}'
+        }).getAttribute('content');
 
         const sourceColorMap = {
             'CHED': {
@@ -198,6 +241,10 @@
                 bg: 'rgba(124,58,237,0.1)',
                 color: '#7C3AED'
             },
+            'DOST_SEI': {
+                bg: 'rgba(124,58,237,0.1)',
+                color: '#7C3AED'
+            },
             'LGU': {
                 bg: 'rgba(5,150,105,0.1)',
                 color: '#059669'
@@ -205,26 +252,33 @@
         };
 
         function showState(state) {
-            [idleState, loadingState, resultsState, errorState].forEach(el => {
+            [idleState, loadingState, notifyLoadingState, resultsState, errorState]
+            .forEach(el => {
                 if (el) el.classList.add('d-none');
             });
             state.classList.remove('d-none');
         }
 
+        // ── SYNC NOW ──────────────────────────────────────────────────────────────
         function runSync() {
             showState(loadingState);
             syncBtn.disabled = true;
+            notifyAllBtn.disabled = true;
             syncBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Syncing...';
 
             fetch('{{ route('admin.sync.run') }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-CSRF-TOKEN': csrfToken,
                         'Accept': 'application/json',
                     },
                 })
-                .then(res => res.json())
+                .then(res => {
+                    if (res.status === 419) throw new Error('Session expired. Please refresh the page.');
+                    if (!res.ok) throw new Error('Server error: ' + res.status);
+                    return res.json();
+                })
                 .then(data => {
                     if (!data.success) throw new Error(data.message || 'Sync returned unsuccessful.');
                     renderResults(data);
@@ -235,12 +289,73 @@
                 })
                 .finally(() => {
                     syncBtn.disabled = false;
+                    notifyAllBtn.disabled = false;
                     syncBtn.innerHTML = '<i class="bi bi-arrow-repeat me-2"></i> Sync Now';
                 });
         }
 
+        // ── NOTIFY ALL STUDENTS ───────────────────────────────────────────────────
+        function runNotifyAll() {
+            showState(notifyLoadingState);
+            notifyAllBtn.disabled = true;
+            syncBtn.disabled = true;
+            notifyAllBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Notifying...';
+
+            // Hide previous result
+            const resultBox = document.getElementById('notifyAllResult');
+            resultBox.classList.add('d-none');
+
+            fetch('{{ route('admin.notify-all') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                    },
+                })
+                .then(res => {
+                    if (res.status === 419) throw new Error('Session expired. Please refresh the page.');
+                    if (!res.ok) throw new Error('Server error: ' + res.status);
+                    return res.json();
+                })
+                .then(data => {
+                    showState(idleState);
+
+                    // Show result below the button
+                    document.getElementById('notifyAllText').textContent = data.message;
+                    resultBox.classList.remove('d-none');
+
+                    // Color result based on outcome
+                    if (data.notified > 0) {
+                        resultBox.style.background = 'rgba(37,99,235,0.06)';
+                        resultBox.style.border = '1px solid rgba(37,99,235,0.2)';
+                        resultBox.querySelector('i').className = 'bi bi-check-circle-fill me-2';
+                        resultBox.querySelector('i').style.color = '#2563EB';
+                        resultBox.querySelector('span').style.color = '#2563EB';
+                    } else {
+                        resultBox.style.background = 'rgba(5,150,105,0.06)';
+                        resultBox.style.border = '1px solid rgba(5,150,105,0.15)';
+                        resultBox.querySelector('i').className = 'bi bi-check2-all me-2';
+                        resultBox.querySelector('i').style.color = '#059669';
+                        resultBox.querySelector('span').style.color = '#059669';
+                    }
+                })
+                .catch(err => {
+                    showState(idleState);
+                    document.getElementById('notifyAllText').textContent = 'Error: ' + (err.message ||
+                        'Something went wrong.');
+                    resultBox.style.background = 'rgba(220,38,38,0.06)';
+                    resultBox.style.border = '1px solid rgba(220,38,38,0.15)';
+                    resultBox.classList.remove('d-none');
+                })
+                .finally(() => {
+                    notifyAllBtn.disabled = false;
+                    syncBtn.disabled = false;
+                    notifyAllBtn.innerHTML = '<i class="bi bi-bell-fill me-2"></i> Notify All Students';
+                });
+        }
+
         function renderResults(data) {
-            // Summary cards
             const summaryRow = document.getElementById('summaryRow');
             summaryRow.innerHTML = `
             <div class="col-4">
@@ -263,7 +378,6 @@
             </div>
         `;
 
-            // Per-source table
             const tbody = document.getElementById('resultsTableBody');
             tbody.innerHTML = '';
             data.sources.forEach(src => {
@@ -278,9 +392,7 @@
                 tbody.innerHTML += `
                 <tr>
                     <td>
-                        <span class="badge rounded-pill px-3 py-1" style="background:${sc.bg};color:${sc.color};font-size:0.73rem;font-weight:700;">
-                            ${src.source}
-                        </span>
+                        <span class="badge rounded-pill px-3 py-1" style="background:${sc.bg};color:${sc.color};font-size:0.73rem;font-weight:700;">${src.source}</span>
                         ${src.error ? `<div style="font-size:0.7rem;color:#DC2626;margin-top:2px;">${src.error}</div>` : ''}
                     </td>
                     <td>${statusBadge}</td>
@@ -291,10 +403,8 @@
             `;
             });
 
-            // Timestamp
-            document.getElementById('syncTimestamp').textContent = data.timestamp;
+            document.getElementById('syncTimestamp').textContent = data.timestamp ?? '';
 
-            // Emails sent
             const emailsRow = document.getElementById('emailsRow');
             if (data.emails_sent > 0) {
                 emailsRow.classList.remove('d-none');
@@ -310,5 +420,6 @@
         syncBtn.addEventListener('click', runSync);
         syncAgainBtn.addEventListener('click', runSync);
         retryBtn.addEventListener('click', runSync);
+        notifyAllBtn.addEventListener('click', runNotifyAll);
     </script>
 @endpush

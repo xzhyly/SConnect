@@ -51,7 +51,24 @@
 
     <div class="scholarship-meta">
         <i class="bi bi-mortarboard-fill" style="color:#F5A623;"></i>
-        GWA Required: {{ $scholarship->minimum_gwa ? $scholarship->minimum_gwa * 100 . '%' : 'Open to all' }}
+        GWA Required: {{ $scholarship->minimum_gwa ? $scholarship->minimum_gwa . ' or better' : 'Open to all' }}
+        @auth
+            @php
+                $userGwa = auth()->user()->gwa;
+                $qualifies = !$scholarship->minimum_gwa || $userGwa <= $scholarship->minimum_gwa;
+            @endphp
+            @if ($qualifies)
+                <span
+                    style="background:#D1FAE5; color:#065F46; font-size:0.70rem; font-weight:600; padding:2px 8px; border-radius:12px; margin-left:6px;">
+                    ✓ You qualify
+                </span>
+            @else
+                <span
+                    style="background:#F3F4F6; color:#6B7280; font-size:0.70rem; font-weight:600; padding:2px 8px; border-radius:12px; margin-left:6px;">
+                    Requires higher GWA
+                </span>
+            @endif
+        @endauth
     </div>
     <div class="scholarship-amount">
         <i class="bi bi-cash-stack" style="color:#F5A623;"></i>

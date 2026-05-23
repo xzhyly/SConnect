@@ -96,8 +96,24 @@
                     <p class="scholarship-desc">{{ Str::limit($scholarship->description, 100) }}</p>
 
                     <div class="scholarship-meta">
+                        @php
+                            $userGwa = auth()->user()->gwa;
+                            $qualifies = !$scholarship->minimum_gwa || $userGwa <= $scholarship->minimum_gwa;
+                        @endphp
                         <span>GWA Required:
-                            <strong>{{ $scholarship->minimum_gwa ? ($scholarship->minimum_gwa * 100) / 5 . '%' : 'Any' }}</strong></span>
+                            <strong>{{ $scholarship->minimum_gwa ? $scholarship->minimum_gwa . ' or better' : 'Any' }}</strong>
+                        </span>
+                        @if ($qualifies)
+                            <span
+                                style="background:#D1FAE5; color:#065F46; font-size:0.70rem; font-weight:600; padding:2px 8px; border-radius:12px; margin-left:6px;">
+                                ✓ You qualify
+                            </span>
+                        @else
+                            <span
+                                style="background:#F3F4F6; color:#6B7280; font-size:0.70rem; font-weight:600; padding:2px 8px; border-radius:12px; margin-left:6px;">
+                                Requires higher GWA
+                            </span>
+                        @endif
                     </div>
                     @if ($scholarship->amount)
                         <div class="scholarship-amount">

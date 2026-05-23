@@ -328,7 +328,8 @@
                 </span>
                 <span class="badge-deadline-pill {{ $deadlineClass }}">
                     <i class="bi {{ $deadlineIcon }}"></i>
-                    {{ $daysLeft }}d left
+                    {{ \Carbon\Carbon::parse($scholarship->deadline)->format('F j, Y') }}
+                    &nbsp;·&nbsp; {{ $daysLeft }}d left
                 </span>
             </div>
         </div>
@@ -418,7 +419,19 @@
                 </div>
                 <div class="info-label mt-3">Minimum GWA</div>
                 <div class="info-value">
-                    {{ $scholarship->minimum_gwa ? $scholarship->minimum_gwa * 100 . '%' : 'Open to all' }}
+                    {{ $scholarship->minimum_gwa ? $scholarship->minimum_gwa . ' or better' : 'Open to all' }}
+                    @php $qualifies = !$scholarship->minimum_gwa || auth()->user()->gwa <= $scholarship->minimum_gwa; @endphp
+                    @if ($qualifies)
+                        <span
+                            style="background:#D1FAE5; color:#065F46; font-size:0.72rem; font-weight:600; padding:2px 9px; border-radius:12px; margin-left:6px; vertical-align:middle;">
+                            ✓ You qualify
+                        </span>
+                    @else
+                        <span
+                            style="background:#F3F4F6; color:#6B7280; font-size:0.72rem; font-weight:600; padding:2px 9px; border-radius:12px; margin-left:6px; vertical-align:middle;">
+                            Requires higher GWA
+                        </span>
+                    @endif
                 </div>
             </div>
             <div>
@@ -434,6 +447,18 @@
                         @endif
                     @else
                         <span class="tag-pill">All municipalities</span>
+                    @endif
+                </div>
+                <div class="info-label mt-3">Year Level</div>
+                <div class="info-value">
+                    @php
+                        $yearLabels = ['1' => '1st Year', '2' => '2nd Year', '3' => '3rd Year', '4' => '4th Year'];
+                    @endphp
+                    @if ($scholarship->year_level)
+                        <span
+                            class="tag-pill">{{ $yearLabels[$scholarship->year_level] ?? $scholarship->year_level }}</span>
+                    @else
+                        <span class="tag-pill">All year levels</span>
                     @endif
                 </div>
                 <div class="info-label mt-3">Available Slots</div>
@@ -478,7 +503,7 @@
                             </span>
                             <span class="badge-deadline-pill {{ $rDeadlineClass }}">
                                 <i class="bi {{ $rDeadlineIcon }}"></i>
-                                {{ $rDaysLeft }}d left
+                                {{ \Carbon\Carbon::parse($rel->deadline)->format('M j, Y') }} · {{ $rDaysLeft }}d left
                             </span>
                         </div>
                         <div class="scholarship-title">{{ $rel->title }}</div>

@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ config('app.name', 'ScholarConnect') }} - Register</title>
+    <title>Register — ScholarConnect</title>
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><polygon points='50,18 85,35 50,52 15,35' fill='%23F5A623'/><rect x='43' y='52' width='14' height='22' rx='4' fill='%23F5A623'/><ellipse cx='50' cy='74' rx='12' ry='6' fill='%23F5A623'/><rect x='82' y='35' width='5' height='18' rx='2.5' fill='%23F5A623'/><circle cx='84.5' cy='55' r='4' fill='%23F5A623'/></svg>">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
@@ -356,7 +358,7 @@
         </a>
         <div class="nav-links d-none d-md-flex">
             <a href="{{ route('browse') }}">Browse</a>
-            <a href="#">About</a>
+            <a href="{{ route('about') }}">About</a>
         </div>
         <div class="d-flex gap-3 align-items-center">
             <a href="{{ route('login') }}" class="btn-nav-login">Login</a>
@@ -395,7 +397,8 @@
                     <div class="mb-2">
                         <label for="name" class="form-label">Full Name</label>
                         <input type="text" id="name" name="name" class="form-control"
-                            placeholder="Juan Dela Cruz" value="{{ old('name') }}" required autofocus>
+                            placeholder="Juan Dela Cruz" value="{{ old('name') }}" required autofocus
+                            autocomplete="off">
                     </div>
 
                     <div class="mb-2">
@@ -421,34 +424,49 @@
                     <div class="row mb-2 align-items-start">
                         <div class="col-md-6 mb-2 mb-md-0">
                             <label for="municipality" class="form-label">Municipality</label>
-                            <select id="municipality" name="municipality" class="form-select" required>
-                                <option value="Basud" {{ old('municipality') == 'Basud' ? 'selected' : '' }}>Basud</option>
+                            <select id="municipality" name="municipality" class="form-select" required
+                                data-old="{{ old('municipality') }}">
+                                <option value="" disabled {{ old('municipality') ? '' : 'selected' }}>Select
+                                    municipality</option>
+                                <option value="Basud" {{ old('municipality') == 'Basud' ? 'selected' : '' }}>Basud
+                                </option>
                                 <option value="Capalonga" {{ old('municipality') == 'Capalonga' ? 'selected' : '' }}>
                                     Capalonga</option>
-                                <option value="Daet" {{ old('municipality') == 'Daet' ? 'selected' : '' }}>Daet</option>
-                                <option value="Jose Panganiban"
-                                    {{ old('municipality') == 'Jose Panganiban' ? 'selected' : '' }}>Jose Panganiban</option>
-                                <option value="Labo" {{ old('municipality') == 'Labo' ? 'selected' : '' }}>Labo</option>
-                                <option value="Mercedes" {{ old('municipality') == 'Mercedes' ? 'selected' : '' }}>Mercedes
+                                <option value="Daet" {{ old('municipality') == 'Daet' ? 'selected' : '' }}>Daet
                                 </option>
-                                <option value="Paracale" {{ old('municipality') == 'Paracale' ? 'selected' : '' }}>Paracale
+                                <option value="Jose Panganiban"
+                                    {{ old('municipality') == 'Jose Panganiban' ? 'selected' : '' }}>Jose Panganiban
+                                </option>
+                                <option value="Labo" {{ old('municipality') == 'Labo' ? 'selected' : '' }}>Labo
+                                </option>
+                                <option value="Mercedes" {{ old('municipality') == 'Mercedes' ? 'selected' : '' }}>
+                                    Mercedes
+                                </option>
+                                <option value="Paracale" {{ old('municipality') == 'Paracale' ? 'selected' : '' }}>
+                                    Paracale
                                 </option>
                                 <option value="San Lorenzo Ruiz"
                                     {{ old('municipality') == 'San Lorenzo Ruiz' ? 'selected' : '' }}>San Lorenzo Ruiz
                                 </option>
-                                <option value="San Vicente" {{ old('municipality') == 'San Vicente' ? 'selected' : '' }}>San
+                                <option value="San Vicente"
+                                    {{ old('municipality') == 'San Vicente' ? 'selected' : '' }}>San
                                     Vicente</option>
-                                <option value="Santa Elena" {{ old('municipality') == 'Santa Elena' ? 'selected' : '' }}>
+                                <option value="Santa Elena"
+                                    {{ old('municipality') == 'Santa Elena' ? 'selected' : '' }}>
                                     Santa Elena</option>
-                                <option value="Talisay" {{ old('municipality') == 'Talisay' ? 'selected' : '' }}>Talisay
+                                <option value="Talisay" {{ old('municipality') == 'Talisay' ? 'selected' : '' }}>
+                                    Talisay
                                 </option>
-                                <option value="Vinzons" {{ old('municipality') == 'Vinzons' ? 'selected' : '' }}>Vinzons
+                                <option value="Vinzons" {{ old('municipality') == 'Vinzons' ? 'selected' : '' }}>
+                                    Vinzons
                                 </option>
                             </select>
                         </div>
                         <div class="col-md-6">
                             <label for="barangay" class="form-label">Barangay</label>
-                            <select id="barangay" name="barangay" class="form-select" required>
+                            <select id="barangay" name="barangay" class="form-select" required
+                                data-old="{{ old('barangay') }}">
+                                <option value="" disabled selected>Select barangay</option>
                             </select>
                         </div>
                     </div>
@@ -461,9 +479,11 @@
                             <optgroup label="Engineering & Technology">
                                 <option value="BSIT" {{ old('course') == 'BSIT' ? 'selected' : '' }}>BS Information
                                     Technology</option>
-                                <option value="BSCS" {{ old('course') == 'BSCS' ? 'selected' : '' }}>BS Computer Science
+                                <option value="BSCS" {{ old('course') == 'BSCS' ? 'selected' : '' }}>BS Computer
+                                    Science
                                 </option>
-                                <option value="BSCE" {{ old('course') == 'BSCE' ? 'selected' : '' }}>BS Civil Engineering
+                                <option value="BSCE" {{ old('course') == 'BSCE' ? 'selected' : '' }}>BS Civil
+                                    Engineering
                                 </option>
                                 <option value="BSEE" {{ old('course') == 'BSEE' ? 'selected' : '' }}>BS Electrical
                                     Engineering</option>
@@ -491,7 +511,8 @@
                                     Entrepreneurship</option>
                                 <option value="BSHM" {{ old('course') == 'BSHM' ? 'selected' : '' }}>BS Hospitality
                                     Management</option>
-                                <option value="BSTM" {{ old('course') == 'BSTM' ? 'selected' : '' }}>BS Tourism Management
+                                <option value="BSTM" {{ old('course') == 'BSTM' ? 'selected' : '' }}>BS Tourism
+                                    Management
                                 </option>
                                 <option value="BSOA" {{ old('course') == 'BSOA' ? 'selected' : '' }}>BS Office
                                     Administration</option>
@@ -499,26 +520,36 @@
                             <optgroup label="Education">
                                 <option value="BEED" {{ old('course') == 'BEED' ? 'selected' : '' }}>BS Elementary
                                     Education</option>
-                                <option value="BSED-English" {{ old('course') == 'BSED-English' ? 'selected' : '' }}>BS
+                                <option value="BSED-English" {{ old('course') == 'BSED-English' ? 'selected' : '' }}>
+                                    BS
                                     Secondary Education - English</option>
-                                <option value="BSED-Math" {{ old('course') == 'BSED-Math' ? 'selected' : '' }}>BS Secondary
+                                <option value="BSED-Math" {{ old('course') == 'BSED-Math' ? 'selected' : '' }}>BS
+                                    Secondary
                                     Education - Math</option>
-                                <option value="BSED-Science" {{ old('course') == 'BSED-Science' ? 'selected' : '' }}>BS
+                                <option value="BSED-Science" {{ old('course') == 'BSED-Science' ? 'selected' : '' }}>
+                                    BS
                                     Secondary Education - Science</option>
-                                <option value="BSED-Filipino" {{ old('course') == 'BSED-Filipino' ? 'selected' : '' }}>BS
+                                <option value="BSED-Filipino"
+                                    {{ old('course') == 'BSED-Filipino' ? 'selected' : '' }}>BS
                                     Secondary Education - Filipino</option>
-                                <option value="BSED-Socstud" {{ old('course') == 'BSED-Socstud' ? 'selected' : '' }}>BS
+                                <option value="BSED-Socstud" {{ old('course') == 'BSED-Socstud' ? 'selected' : '' }}>
+                                    BS
                                     Secondary Education - Social Studies</option>
-                                <option value="BSED-TLE" {{ old('course') == 'BSED-TLE' ? 'selected' : '' }}>BS Secondary
+                                <option value="BSED-TLE" {{ old('course') == 'BSED-TLE' ? 'selected' : '' }}>BS
+                                    Secondary
                                     Education - TLE</option>
-                                <option value="BSPE" {{ old('course') == 'BSPE' ? 'selected' : '' }}>BS Physical Education
+                                <option value="BSPE" {{ old('course') == 'BSPE' ? 'selected' : '' }}>BS Physical
+                                    Education
                                 </option>
                             </optgroup>
                             <optgroup label="Health Sciences">
-                                <option value="BSN" {{ old('course') == 'BSN' ? 'selected' : '' }}>BS Nursing</option>
-                                <option value="BSMT" {{ old('course') == 'BSMT' ? 'selected' : '' }}>BS Medical Technology
+                                <option value="BSN" {{ old('course') == 'BSN' ? 'selected' : '' }}>BS Nursing
                                 </option>
-                                <option value="BSPT" {{ old('course') == 'BSPT' ? 'selected' : '' }}>BS Physical Therapy
+                                <option value="BSMT" {{ old('course') == 'BSMT' ? 'selected' : '' }}>BS Medical
+                                    Technology
+                                </option>
+                                <option value="BSPT" {{ old('course') == 'BSPT' ? 'selected' : '' }}>BS Physical
+                                    Therapy
                                 </option>
                                 <option value="BSPHAR" {{ old('course') == 'BSPHAR' ? 'selected' : '' }}>BS Pharmacy
                                 </option>
@@ -532,22 +563,28 @@
                             <optgroup label="Agriculture & Environment">
                                 <option value="BSAg" {{ old('course') == 'BSAg' ? 'selected' : '' }}>BS Agriculture
                                 </option>
-                                <option value="BSF" {{ old('course') == 'BSF' ? 'selected' : '' }}>BS Forestry</option>
+                                <option value="BSF" {{ old('course') == 'BSF' ? 'selected' : '' }}>BS Forestry
+                                </option>
                                 <option value="BSFISH" {{ old('course') == 'BSFISH' ? 'selected' : '' }}>BS Fisheries
                                 </option>
-                                <option value="BSENR" {{ old('course') == 'BSENR' ? 'selected' : '' }}>BS Environmental
+                                <option value="BSENR" {{ old('course') == 'BSENR' ? 'selected' : '' }}>BS
+                                    Environmental
                                     Science</option>
-                                <option value="BSABN" {{ old('course') == 'BSABN' ? 'selected' : '' }}>BS Animal Science
+                                <option value="BSABN" {{ old('course') == 'BSABN' ? 'selected' : '' }}>BS Animal
+                                    Science
                                 </option>
                             </optgroup>
                             <optgroup label="Arts & Social Sciences">
-                                <option value="ABCOM" {{ old('course') == 'ABCOM' ? 'selected' : '' }}>AB Communication
+                                <option value="ABCOM" {{ old('course') == 'ABCOM' ? 'selected' : '' }}>AB
+                                    Communication
                                 </option>
-                                <option value="ABPOL" {{ old('course') == 'ABPOL' ? 'selected' : '' }}>AB Political Science
+                                <option value="ABPOL" {{ old('course') == 'ABPOL' ? 'selected' : '' }}>AB Political
+                                    Science
                                 </option>
                                 <option value="ABSOC" {{ old('course') == 'ABSOC' ? 'selected' : '' }}>AB Sociology
                                 </option>
-                                <option value="ABPSYCH" {{ old('course') == 'ABPSYCH' ? 'selected' : '' }}>AB Psychology
+                                <option value="ABPSYCH" {{ old('course') == 'ABPSYCH' ? 'selected' : '' }}>AB
+                                    Psychology
                                 </option>
                                 <option value="BSSW" {{ old('course') == 'BSSW' ? 'selected' : '' }}>BS Social Work
                                 </option>
@@ -555,9 +592,11 @@
                                 </option>
                             </optgroup>
                             <optgroup label="Law & Criminology">
-                                <option value="BSCRIM" {{ old('course') == 'BSCRIM' ? 'selected' : '' }}>BS Criminology
+                                <option value="BSCRIM" {{ old('course') == 'BSCRIM' ? 'selected' : '' }}>BS
+                                    Criminology
                                 </option>
-                                <option value="JD" {{ old('course') == 'JD' ? 'selected' : '' }}>Juris Doctor (Law)
+                                <option value="JD" {{ old('course') == 'JD' ? 'selected' : '' }}>Juris Doctor
+                                    (Law)
                                 </option>
                             </optgroup>
                             <optgroup label="Maritime">
@@ -567,16 +606,20 @@
                                     Transportation</option>
                             </optgroup>
                             <optgroup label="Architecture & Fine Arts">
-                                <option value="BSARCH" {{ old('course') == 'BSARCH' ? 'selected' : '' }}>BS Architecture
+                                <option value="BSARCH" {{ old('course') == 'BSARCH' ? 'selected' : '' }}>BS
+                                    Architecture
                                 </option>
-                                <option value="BSFA" {{ old('course') == 'BSFA' ? 'selected' : '' }}>BS Fine Arts</option>
-                                <option value="BSID" {{ old('course') == 'BSID' ? 'selected' : '' }}>BS Interior Design
+                                <option value="BSFA" {{ old('course') == 'BSFA' ? 'selected' : '' }}>BS Fine Arts
+                                </option>
+                                <option value="BSID" {{ old('course') == 'BSID' ? 'selected' : '' }}>BS Interior
+                                    Design
                                 </option>
                             </optgroup>
                             <optgroup label="Technical & Vocational">
                                 <option value="BTVTED" {{ old('course') == 'BTVTED' ? 'selected' : '' }}>BS
                                     Technical-Vocational Teacher Education</option>
-                                <option value="BSND-Tech" {{ old('course') == 'BSND-Tech' ? 'selected' : '' }}>Associate in
+                                <option value="BSND-Tech" {{ old('course') == 'BSND-Tech' ? 'selected' : '' }}>
+                                    Associate in
                                     Computer Technology</option>
                             </optgroup>
                         </select>
@@ -587,17 +630,21 @@
                         <div class="col-md-6 mb-2 mb-md-0">
                             <label for="year_level" class="form-label">Academic Level</label>
                             <select id="year_level" name="year_level" class="form-select" required>
-                                <option value="1" {{ old('year_level') == '1' ? 'selected' : '' }}>1st Year</option>
-                                <option value="2" {{ old('year_level') == '2' ? 'selected' : '' }}>2nd Year</option>
-                                <option value="3" {{ old('year_level') == '3' ? 'selected' : '' }}>3rd Year</option>
-                                <option value="4" {{ old('year_level') == '4' ? 'selected' : '' }}>4th Year</option>
+                                <option value="1" {{ old('year_level') == '1' ? 'selected' : '' }}>1st Year
+                                </option>
+                                <option value="2" {{ old('year_level') == '2' ? 'selected' : '' }}>2nd Year
+                                </option>
+                                <option value="3" {{ old('year_level') == '3' ? 'selected' : '' }}>3rd Year
+                                </option>
+                                <option value="4" {{ old('year_level') == '4' ? 'selected' : '' }}>4th Year
+                                </option>
                             </select>
                         </div>
                         <div class="col-md-6">
                             <label for="gwa" class="form-label">Current GWA</label>
-                            <input type="number" id="gwa" name="gwa" class="form-control"
-                                placeholder="e.g. 1.75" value="{{ old('gwa') }}" min="1.00" max="5.00"
-                                step="0.01" required>
+                            <input type="text" inputmode="decimal" id="gwa" name="gwa"
+                                class="form-control" placeholder="1.00 – 3.00" value="{{ old('gwa') }}" required
+                                maxlength="4" autocomplete="off">
                         </div>
                     </div>
 
@@ -635,80 +682,250 @@
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 
     <script>
+        // ─── COMPLETE CAMARINES NORTE BARANGAY DATA (PSA-based) ───────────────────
         const barangays = {
-            "Basud": ["Angas", "Bactas", "Binatagan", "Caayunan", "Guinatungan", "Hinampacan", "Langa", "Laniton",
+            "Basud": [
+                "Angas", "Bactas", "Binatagan", "Caayunan", "Guinatungan", "Hinampacan", "Langa", "Laniton",
                 "Lumbang Caliente", "Lumbang Gabing", "Mabilo I", "Mabilo II", "Nakalaya", "Northern Poblacion",
                 "Pag-Asa", "Patrol", "Plaridel", "Poblacion", "Salvacion", "San Antonio", "San Francisco",
                 "San Isidro", "San Lorenzo", "San Roque", "Santa Cruz", "Santo Tomas", "Southern Poblacion",
                 "Taba-Taba", "Taguilid"
             ],
-            "Capalonga": ["Alayao", "Bia", "Biong", "Bolo", "Bugtong", "Cabugao", "Capalonga Poblacion", "Gahonon",
-                "Gibong", "Itok", "Lucbanan", "Lugui", "Mabini", "Magsaysay", "Masalong", "Napaod", "Ortega",
+            "Capalonga": [
+                "Alayao", "Bia", "Biong", "Bolo", "Bugtong", "Cabugao", "Gahonon", "Gibong", "Itok",
+                "Lucbanan", "Lugui", "Mabini", "Magsaysay", "Masalong", "Napaod", "Ortega", "Poblacion",
                 "San Antonio", "San Isidro", "San Ramon", "Santa Cruz", "Villa Aurora"
             ],
-            "Daet": ["Alawihao", "Awitan", "Bagasbas", "Barangay I (Pob.)", "Barangay II (Pob.)", "Barangay III (Pob.)",
+            "Daet": [
+                "Alawihao", "Awitan", "Bagasbas", "Barangay I (Pob.)", "Barangay II (Pob.)", "Barangay III (Pob.)",
                 "Barangay IV (Pob.)", "Barangay V (Pob.)", "Barangay VI (Pob.)", "Barangay VII (Pob.)",
                 "Barangay VIII (Pob.)", "Camambugan", "Cobangbang (Caridad)", "Dogongan", "Galaxy", "Gubat",
-                "Lag-on", "Magang", "Mambalite", "Mancruz (Mancrus)", "Pamorangon", "San Isidro", "Tagongtong",
-                "Tamba", "Tungkos"
+                "Lag-on", "Magang", "Mambalite", "Mancruz (Mancrus)", "Pamorangon", "San Isidro",
+                "Tagongtong", "Tamba", "Tungkos"
             ],
-            "Jose Panganiban": ["Bagong Bayan", "Calero", "Dahican", "Dayhagan", "Guadalupe", "Larap", "Lubayat",
+            "Jose Panganiban": [
+                "Bagong Bayan", "Calero", "Dahican", "Dayhagan", "Guadalupe", "Larap", "Lubayat",
                 "Mabini", "Magais I", "Magais II", "Mamburao", "Man-ogob", "Marcella", "Masalongsalong",
                 "Mataas Na Bayan", "Nakalaya", "New Cagayan", "Osmeña", "Pag-asa", "Parang", "Plaridel",
                 "Poblacion I", "Poblacion II", "Poblacion III", "Santa Cruz", "Santa Rosa Norte", "Santa Rosa Sur"
             ],
-            "Labo": ["Anahaw", "Angas", "Apoloog", "Awitan", "Baay", "Bagacay", "Bagong Silang I", "Bagong Silang II",
+            "Labo": [
+                "Anahaw", "Angas", "Apoloog", "Awitan", "Baay", "Bagacay", "Bagong Silang I", "Bagong Silang II",
                 "Bagong Silang III", "Bahao", "Balayan", "Baleban", "Bayabas", "Cabatuan", "Cabusay", "Calabasa",
                 "Calagbangan", "Calangcawan Norte", "Calangcawan Sur", "Canapawan", "Catabaguangan", "Catarauan",
                 "Crossing Labo", "Dalas", "Gumamela", "Guisican", "Kalamunding", "La Purisima", "Laguinbanua Este",
                 "Laguinbanua Oeste", "Logmao", "Lormal", "Lugui", "Mabilo I", "Mabilo II", "Malasugui", "Malagakit",
-                "Malapit", "Mate", "Mbibini", "Napaod", "Pinya", "Ramos", "San Antonio", "San Francisco",
-                "San Jose", "San Isidro", "Talobatib", "Tulay Na Lupa", "Union", "Villasocorro", "Wakas"
+                "Malapit", "Mate", "Napaod", "Pinya", "Ramos", "San Antonio", "San Francisco", "San Isidro",
+                "San Jose", "Talobatib", "Tulay Na Lupa", "Union", "Villasocorro", "Wakas"
             ],
-            "Mercedes": ["Apud", "Base", "Bulala", "Caayunan", "Dahican", "Dinagaan", "Fatima (Pob.)", "Gabon",
+            "Mercedes": [
+                "Apud", "Base", "Bulala", "Caayunan", "Dahican", "Dinagaan", "Fatima (Pob.)", "Gabon",
                 "Hinampacan", "Huyonhuyon", "Imelda", "Labu-o", "Lagha", "Lanipga", "Magang", "Minalabac", "Napaod",
                 "Pag-Asa", "Panganiban", "Pinagkamaligan", "Poblacion I", "Poblacion II", "Salingogon", "San Roque",
                 "Tanawan", "Tigbinan"
             ],
-            "Paracale": ["Awitan", "Bagumbayan", "Biong", "Boto", "Capalonga", "Catalotoan", "Dalnac", "Gahonon",
+            "Paracale": [
+                "Awitan", "Bagumbayan", "Biong", "Boto", "Capalonga", "Catalotoan", "Dalnac", "Gahonon",
                 "Guitol", "Jose Panganiban (Pob.)", "Labnig", "La Purisima (Pob.)", "Langga", "Lucbanan", "Mabilo",
                 "Magsaysay", "Malacbang", "Malagakit", "Mampurog", "Manlimonsito", "Mataas Na Bayan", "Napaod",
-                "Oro", "Paracale Poblacion", "Taffal", "Tobgon"
+                "Oro", "Poblacion", "Taffal", "Tobgon"
             ],
-            "San Lorenzo Ruiz": ["Bagong Sikat", "Comadaycaday", "Comadogcadog", "Cotmon", "Doña Petra", "Huyonhuyon",
-                "Landa", "Laniton", "Maagang", "Salvacion", "San Lorenzo Ruiz Poblacion", "Santa Cruz"
+            "San Lorenzo Ruiz": [
+                "Bagong Sikat", "Comadaycaday", "Comadogcadog", "Cotmon", "Doña Petra", "Huyonhuyon",
+                "Landa", "Laniton", "Maagang", "Salvacion", "Poblacion", "Santa Cruz"
             ],
-            "San Vicente": ["Aldezar", "Awo", "Batalay", "Del Pilar", "Hapitan", "Kaluklukan", "Magsaysay", "Salvacion",
-                "San Vicente Poblacion"
+            "San Vicente": [
+                "Aldezar", "Awo", "Batalay", "Del Pilar", "Hapitan", "Kaluklukan", "Magsaysay", "Salvacion",
+                "Poblacion"
             ],
-            "Santa Elena": ["Angcogan", "Bahan", "Buhangin", "Bulhao", "Calagbagang", "Catalotoan", "Don Tomas",
+            "Santa Elena": [
+                "Angcogan", "Bahan", "Buhangin", "Bulhao", "Calagbagang", "Catalotoan", "Don Tomas",
                 "Guitol", "Kabuluan", "Kagtalaba", "Maulawin", "Patag Ibaba", "Patag Iraya", "Plaridel",
-                "Salvacion (Pob.)", "San Rafael", "Santa Elena Poblacion", "Tabugon", "Villa Docto"
+                "Salvacion (Pob.)", "San Rafael", "Poblacion", "Tabugon", "Villa Docto"
             ],
-            "Talisay": ["Banga", "Cataguintingan", "Dacu", "Del Carmen (Pob.)", "Dominorog", "Gatbo", "Hapitan",
-                "Mabilo", "Nagsabaran", "Pag-Asa", "Panagatan", "Salvacion", "Sagrada", "San Roque",
-                "Talisay Poblacion"
+            "Talisay": [
+                "Banga", "Cataguintingan", "Dacu", "Del Carmen (Pob.)", "Dominorog", "Gatbo", "Hapitan",
+                "Mabilo", "Nagsabaran", "Pag-Asa", "Panagatan", "Salvacion", "Sagrada", "San Roque", "Poblacion"
             ],
-            "Vinzons": ["Aldezar", "Almiñe", "Alnay", "Alulo", "Awitan", "Baban", "Bagumbayan", "Benguet", "Bulala",
+            "Vinzons": [
+                "Aldezar", "Almiñe", "Alnay", "Alulo", "Awitan", "Baban", "Bagumbayan", "Benguet", "Bulala",
                 "Bulawan", "Caawigan", "Caayunan", "Calabasa", "Calagbangan", "Calangcawan", "Capalonga",
                 "Casalugan", "Dagang", "Dayhagan", "Del Pilar", "Eco", "Guitol", "Huyonhuyon", "Imelda", "Lahan",
                 "Lanipga", "Mabini", "Mananap", "Maot", "Masalong", "Mataas Na Bayan", "Napaod", "Palanas",
                 "Pinagkamaligan", "Poblacion I", "Poblacion II", "Salvacion", "San Isidro", "San Jose",
-                "San Lorenzo", "San Roque", "Santa Cruz", "Tanauan", "Tigbinan", "Tulay Na Lupa", "Tulatula Norte",
-                "Tulatula Sur", "Villa Aurora", "Vinzon", "Wawa"
+                "San Lorenzo", "San Roque", "Santa Cruz", "Tanauan", "Tigbinan", "Tulay Na Lupa",
+                "Tulatula Norte", "Tulatula Sur", "Villa Aurora", "Vinzon", "Wawa"
             ]
         };
 
+        // ─── GWA INPUT VALIDATION (1.00 – 3.00, any 2 decimals) ──────────────────
         document.addEventListener('DOMContentLoaded', function() {
+            const gwaInput = document.getElementById('gwa');
+            if (!gwaInput) return;
 
-            // Course — MAY search (maraming options)
+            let isDeleting = false;
+
+            gwaInput.addEventListener('keydown', function(e) {
+                isDeleting = (e.key === 'Backspace' || e.key === 'Delete');
+
+                // Backspace/Delete — clear whole field so user can re-type cleanly
+                if (isDeleting && this.value !== '') {
+                    e.preventDefault();
+                    this.value = '';
+                    isDeleting = false;
+                    return;
+                }
+
+                const nav = ['ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'];
+                if (nav.includes(e.key)) return;
+
+                // Only digits allowed — no letters, dots, symbols
+                if (!/^[0-9]$/.test(e.key)) {
+                    e.preventDefault();
+                    return;
+                }
+
+                const cur = this.value;
+
+                // Empty field: only 1, 2, or 3 allowed as first digit
+                if (cur === '') {
+                    if (!/^[1-3]$/.test(e.key)) {
+                        e.preventDefault();
+                    }
+                    return;
+                }
+
+                // "3" or "3." — lock to 3.00, no more input
+                if (/^3/.test(cur)) {
+                    e.preventDefault();
+                    return;
+                }
+
+                // After "X." — any digit 0-9 allowed (first decimal place)
+                if (/^[12][.]$/.test(cur)) {
+                    return; // allow any digit
+                }
+
+                // After "X.Y" — any digit 0-9 allowed (second decimal place)
+                if (/^[12][.][0-9]$/.test(cur)) {
+                    return; // allow any digit
+                }
+
+                // Full 4-char value "X.YZ" — block further input
+                e.preventDefault();
+            });
+
+            // input: mobile/IME safety net — sanitise and auto-format
+            gwaInput.addEventListener('input', function() {
+                let val = this.value.replace(/[^0-9.]/g, '');
+
+                // First digit must be 1, 2, or 3
+                if (val.length > 0 && !/^[1-3]/.test(val)) {
+                    this.value = '';
+                    return;
+                }
+
+                // "3" typed → lock to 3.00
+                if (/^3/.test(val)) {
+                    this.value = '3.00';
+                    return;
+                }
+
+                // Auto-add dot after first digit (but not while deleting)
+                if (!isDeleting && /^[12]$/.test(val)) {
+                    this.value = val + '.';
+                    return;
+                }
+
+                // Clamp to max 4 characters "X.YZ"
+                this.value = val.slice(0, 4);
+            });
+
+            // blur: reject incomplete entries like "1.", "2.5" — must be "X.YZ"
+            gwaInput.addEventListener('blur', function() {
+                const val = this.value;
+                if (val === '') return;
+                // Must match X.YZ format with exactly 2 decimals
+                if (!/^[1-3][.][0-9]{2}$/.test(val)) {
+                    this.value = '';
+                    return;
+                }
+                // Must be within 1.00 – 3.00
+                const num = parseFloat(val);
+                if (num < 1.00 || num > 3.00) {
+                    this.value = '';
+                }
+            });
+
+            // Block paste and drag-drop
+            gwaInput.addEventListener('paste', function(e) {
+                e.preventDefault();
+            });
+            gwaInput.addEventListener('drop', function(e) {
+                e.preventDefault();
+            });
+        });
+
+        // ─── FULL NAME AUTO-CAPITALIZE ────────────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', function() {
+            const nameInput = document.getElementById('name');
+            if (!nameInput) return;
+
+            nameInput.addEventListener('input', function() {
+                const pos = this.selectionStart;
+                const val = this.value;
+
+                // Capitalize first letter of every word (after space, hyphen, or start)
+                const formatted = val.replace(/(^|[\s\-])([a-z])/g, function(match, sep, char) {
+                    return sep + char.toUpperCase();
+                });
+
+                if (formatted !== val) {
+                    this.value = formatted;
+                    // Restore cursor position after value change
+                    this.setSelectionRange(pos, pos);
+                }
+            });
+
+            // Block numbers and special characters — names only have letters, spaces, hyphens, dots, apostrophes
+            nameInput.addEventListener('keydown', function(e) {
+                const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+                    'Home', 'End', 'Tab', 'Enter', 'Shift', 'Control', 'Alt', 'CapsLock'
+                ];
+                if (allowed.includes(e.key)) return;
+                if (e.ctrlKey || e.metaKey) return; // allow copy/paste shortcuts
+                // Allow: letters (any language), space, hyphen, dot, apostrophe
+                if (!/^[a-zA-ZÀ-ÖØ-öø-ÿ\s\-\.']$/.test(e.key)) {
+                    e.preventDefault();
+                }
+            });
+        });
+
+        // ─── BARANGAY POPULATION (TomSelect) ─────────────────────────────────────
+        let barSelect = null;
+
+        function populateBarangay(municipalityValue, selectedBarangay) {
+            if (!barSelect) return;
+            barSelect.clear(true);
+            barSelect.clearOptions();
+            if (!municipalityValue || !barangays[municipalityValue]) return;
+            const opts = barangays[municipalityValue].map(function(b) {
+                return {
+                    value: b,
+                    text: b
+                };
+            });
+            barSelect.addOptions(opts);
+            if (selectedBarangay) barSelect.setValue(selectedBarangay, true);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
             new TomSelect("#course", {
                 create: false,
                 maxOptions: null,
                 placeholder: 'Select program'
             });
 
-            // Year level — WALANG search (4 options lang)
             new TomSelect("#year_level", {
                 create: false,
                 controlInput: null,
@@ -716,58 +933,35 @@
                 placeholder: 'Select level'
             });
 
-            // Municipality — WALANG search
-            let munSelect = new TomSelect("#municipality", {
+            barSelect = new TomSelect("#barangay", {
                 create: false,
                 controlInput: null,
                 maxOptions: null,
-                placeholder: 'Select municipality'
+                placeholder: 'Select barangay'
             });
 
-            // Barangay — dynamic, WALANG search
-            let barSelect = new TomSelect("#barangay", {
+            const oldMun = document.getElementById('municipality').dataset.old || '';
+            const oldBar = document.getElementById('barangay').dataset.old || '';
+
+            new TomSelect("#municipality", {
                 create: false,
                 controlInput: null,
                 maxOptions: null,
-                placeholder: 'Select barangay',
-                valueField: 'id',
-                labelField: 'title',
-                searchField: 'title',
-                options: []
-            });
-
-            // On municipality change — populate barangays
-            munSelect.on('change', function(val) {
-                barSelect.clearOptions();
-                barSelect.clear();
-                if (val && barangays[val]) {
-                    const options = barangays[val].map(b => ({
-                        id: b,
-                        title: b
-                    }));
-                    barSelect.addOptions(options);
-                    const oldBarangay = "{{ old('barangay') }}";
-                    if (oldBarangay && barangays[val].includes(oldBarangay)) {
-                        barSelect.setValue(oldBarangay);
+                placeholder: 'Select municipality',
+                onInitialize: function() {
+                    if (oldMun) {
+                        this.setValue(oldMun, true);
+                        populateBarangay(oldMun, oldBar);
                     }
+                },
+                onChange: function(val) {
+                    populateBarangay(val, '');
                 }
             });
-
-            // On page load — restore old value if validation error
-            const initialMun = munSelect.getValue();
-            if (initialMun && barangays[initialMun]) {
-                const options = barangays[initialMun].map(b => ({
-                    id: b,
-                    title: b
-                }));
-                barSelect.addOptions(options);
-                const oldBarangay = "{{ old('barangay') }}";
-                if (oldBarangay && barangays[initialMun].includes(oldBarangay)) {
-                    barSelect.setValue(oldBarangay);
-                }
-            }
         });
-        // Auto-show success modal
+
+
+        // ─── AUTO-SHOW SUCCESS MODAL ───────────────────────────────────────────────
         @if (session('success'))
             var successModal = new bootstrap.Modal(document.getElementById('successModal'));
             successModal.show();

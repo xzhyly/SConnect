@@ -11,21 +11,20 @@ use App\Http\Controllers\Admin\ScholarshipController as AdminScholarship;
 use App\Http\Controllers\Admin\SyncController;
 use App\Http\Controllers\Admin\SyncLogController;
 
-// ─── Public Routes ────────────────────────────────────────────────────────────
-
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
-
-Route::get('/browse', [ScholarshipController::class, 'publicIndex'])->name('browse');
-
-Route::get('/about', function () {
-    return view('public.about');
-})->name('about');
-
-// ─── Guest-only Auth Routes ───────────────────────────────────────────────────
+// ─── Guest-only Routes ────────────────────────────────────────────────────────
 
 Route::middleware('guest')->group(function () {
+
+    Route::get('/', function () {
+        return view('welcome');
+    })->name('home');
+
+    Route::get('/browse', [ScholarshipController::class, 'publicIndex'])->name('browse');
+
+    Route::get('/about', function () {
+        return view('public.about');
+    })->name('about');
+
     Route::get('/login',    [StudentAuthController::class, 'showLogin'])->name('login');
     Route::post('/login',   [StudentAuthController::class, 'login']);
 
@@ -39,6 +38,8 @@ Route::middleware('guest')->group(function () {
         return view('auth.forgot-password');
     })->name('password.request');
 });
+
+// ─── Logout ───────────────────────────────────────────────────────────────────
 
 Route::post('/logout', [StudentAuthController::class, 'logout'])
     ->name('logout')
@@ -59,6 +60,7 @@ Route::middleware(['auth', 'student'])->prefix('student')->name('student.')->gro
 
     Route::get('/notifications',                [DashboardController::class, 'notifications'])->name('notifications');
     Route::post('/notifications/{id}/read',     [DashboardController::class, 'markRead'])->name('notifications.read');
+    Route::post('/notifications/read-all',      [DashboardController::class, 'markAllRead'])->name('notifications.read-all');
     Route::post('/notifications/toggle-alerts', [DashboardController::class, 'toggleAlerts'])->name('notifications.toggle');
 
     Route::get('/profile',  [DashboardController::class, 'profile'])->name('profile');
@@ -68,20 +70,24 @@ Route::middleware(['auth', 'student'])->prefix('student')->name('student.')->gro
 // ─── Admin Routes ─────────────────────────────────────────────────────────────
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    // Dashboard
     Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
 
-    // Scholarship management
-    Route::get('/scholarships',                    [AdminScholarship::class, 'index'])->name('scholarships');
-    Route::patch('/scholarships/{id}/toggle',      [AdminScholarship::class, 'toggle'])->name('scholarships.toggle');
+    Route::get('/scholarships',                [AdminScholarship::class, 'index'])->name('scholarships');
+    Route::get('/scholarships/create',         [AdminScholarship::class, 'create'])->name('scholarships.create');
+    Route::post('/scholarships',               [AdminScholarship::class, 'store'])->name('scholarships.store');
+    Route::get('/scholarships/{id}/edit',      [AdminScholarship::class, 'edit'])->name('scholarships.edit');
+    Route::put('/scholarships/{id}',           [AdminScholarship::class, 'update'])->name('scholarships.update');
+    Route::delete('/scholarships/{id}',        [AdminScholarship::class, 'destroy'])->name('scholarships.destroy');
+    Route::patch('/scholarships/{id}/toggle',  [AdminScholarship::class, 'toggle'])->name('scholarships.toggle');
 
-    // Sync Now — GET = page, POST = run sync (called via JS fetch)
-    Route::get('/sync',  [SyncController::class, 'index'])->name('sync');
-    Route::post('/sync', [SyncController::class, 'run'])->name('sync.run');
+    Route::get('/sync',         [SyncController::class, 'index'])->name('sync');
+    Route::post('/sync',        [SyncController::class, 'run'])->name('sync.run');
+    Route::post('/notify-all',  [SyncController::class, 'notifyAll'])->name('notify-all');
 
-    // Sync Logs
     Route::get('/sync-logs', [SyncController::class, 'logs'])->name('sync-logs');
-}); // ─── Architecture Diagram ─────────────────────────────────────────────────────
+});
+
+// ─── Dev Only ─────────────────────────────────────────────────────────────────
 
 Route::get('/architecture', function () {
     return view('architecture');
