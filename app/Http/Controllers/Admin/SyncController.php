@@ -238,14 +238,14 @@ $sources = [
 
                 $notified++;
 
-                // Send email
-                try {
-                    Mail::to($student->email)->send(new ScholarshipAlert($student, $scholarship));
-                    $notification->update(['email_sent' => true]);
-                    $emailsSent++;
-                } catch (\Exception $e) {
-                    Log::error("Notify All — email failed for student {$student->id}: " . $e->getMessage());
-                }
+                // Send email - disabled for deployment
+// try {
+//     Mail::to($student->email)->send(new ScholarshipAlert($student, $scholarship));
+//     $notification->update(['email_sent' => true]);
+//     $emailsSent++;
+// } catch (\Exception $e) {
+//     Log::error("Notify All — email failed for student {$student->id}: " . $e->getMessage());
+// }
             }
         }
 
