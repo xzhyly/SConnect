@@ -70,7 +70,7 @@ class StudentAuthController extends Controller
 
         // Auto-notify new user with all active matching scholarships
         // Runs immediately after account creation — no need to wait for next sync
-        app(NotificationService::class)->dispatchAlertsForUser($user);
+      // app(NotificationService::class)->dispatchAlertsForUser($user);
 
         return redirect()->route('login')->with('success', 'Account created! You can now log in.');
     }
